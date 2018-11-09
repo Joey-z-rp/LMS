@@ -108,6 +108,22 @@ const client = {
                 ],
             },
             {
+                test: /\.css$/,
+                use: [
+                    { loader: 'style-loader' },
+                    {
+                        loader: 'css-loader',
+                        options: {
+                            modules: false,
+                        },
+                    },
+                    'postcss-loader',
+                ],
+                include: [
+                    path.resolve(__dirname, './node_modules'),
+                ],
+            },
+            {
                 test: /\.(png|jpg|gif|svg|ico)$/,
                 use: [
                     {

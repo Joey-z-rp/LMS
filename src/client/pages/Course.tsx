@@ -1,40 +1,62 @@
-import * as React                               from 'react';
-import { connect }                              from 'react-redux';
-import { Button, Card, Divider, Grid, Header, Icon, Image, Segment, Table, Placeholder }   from 'semantic-ui-react';
+import * as React from 'react';
+import { connect } from 'react-redux';
+import {
+    Button,
+    Divider,
+    Dimmer,
+    Loader,
+    Grid,
+    Header,
+    List,
+    Image,
+    Table,
+    Statistic,
+} from 'semantic-ui-react';
 import MediaQuery from 'react-responsive';
 import { Link } from 'react-router-dom';
-import Layout from '../components/Layout'
-import { getCourses } from '../actions';
+import Calendar from 'react-calendar';
+import Layout from '../components/Layout';
+import { getCourse } from '../actions';
+import PersonLabel from '../components/PersonLabel';
 
 const mapStateToProps = (state) => ({
-    courses: state.courses.list,
-    isFetching: state.courses.isFetching,
+    course: state.course.course,
+    isFetching: state.course.isFetching,
 });
 
 const mapDispatchToProps = (dispatch) => ({
-    loadCourses: () => dispatch(getCourses()),
+    loadCourse: (id) => dispatch(getCourse(id)),
 });
 
 export class CoursePage extends React.Component<any> {
     componentDidMount() {
-        this.props.loadCourses();
+        this.props.loadCourse(this.props.match.params.id);
     }
 
     render() {
-        const { courses, isFetching } = this.props;
+        const { course, isFetching } = this.props;
 
         return (
             <Layout>
+                {
+                    isFetching
+                        ? (
+                            <Dimmer active inverted>
+                                <Loader inverted>Loading</Loader>
+                            </Dimmer>
+                        )
+                        : null
+                }
                 <Header size="huge" icon textAlign="center">
-                    <Header.Content>Web Full Stack</Header.Content>
+                    <Header.Content>{course.name}</Header.Content>
                 </Header>
                 <Grid stackable>
                     <Grid.Column width={4}>
                         <MediaQuery maxWidth={768}>
-                            <Image rounded centered size="small" src='https://react.semantic-ui.com/images/avatar/large/matthew.png' />
+                            <Image rounded centered size="small" src={course.image} />
                         </MediaQuery>
                         <MediaQuery minWidth={768}>
-                            <Image rounded src='https://react.semantic-ui.com/images/avatar/large/matthew.png' />
+                            <Image rounded src={course.img} />
                         </MediaQuery>
                     </Grid.Column>
                     <Grid.Column width={9}>
@@ -48,9 +70,7 @@ export class CoursePage extends React.Component<any> {
                                         </Header>
                                     </Table.Cell>
                                     <Table.Cell>
-                                        <p>
-                                            React makes it painless to create interactive UIs. Design simple views for each state in your application, and React will efficiently update and render just the right components when your data changes.
-                                        </p>
+                                        <p>{course.description}</p>
                                     </Table.Cell>
                                 </Table.Row>
                                 <Table.Row>
@@ -62,7 +82,17 @@ export class CoursePage extends React.Component<any> {
                                         </Header>
                                     </Table.Cell>
                                     <Table.Cell>
-                                        2018-12-01 to 2018-12-31
+                                        <Statistic horizontal size="mini">
+                                            <Statistic.Label>{course.from}</Statistic.Label>
+                                            <Statistic.Label>To</Statistic.Label>
+                                            <Statistic.Label>{course.to}</Statistic.Label>
+                                        </Statistic>
+                                        <MediaQuery minWidth={768}>
+                                            <Calendar
+                                                value={[new Date(course.from || null), new Date(course.to || null)]}
+                                                selectRange
+                                            />
+                                        </MediaQuery>
                                     </Table.Cell>
                                 </Table.Row>
                                 <Table.Row>
@@ -74,7 +104,12 @@ export class CoursePage extends React.Component<any> {
                                         </Header>
                                     </Table.Cell>
                                     <Table.Cell>
-
+                                        <PersonLabel
+                                            src="/"
+                                            name={course.lecturer && course.lecturer.name}
+                                            image={course.lecturer&& course.lecturer.image}
+                                            size="huge"
+                                        />
                                     </Table.Cell>
                                 </Table.Row>
                                 <Table.Row>
@@ -85,7 +120,7 @@ export class CoursePage extends React.Component<any> {
                                             </Header.Content>
                                         </Header>
                                     </Table.Cell>
-                                    <Table.Cell>11</Table.Cell>
+                                    <Table.Cell>{course.students && course.students.length}</Table.Cell>
                                 </Table.Row>
                                 <Table.Row>
                                     <Table.Cell>
@@ -101,11 +136,32 @@ export class CoursePage extends React.Component<any> {
                         </Table>
                         <Divider />
                         <Button size="large" primary>
+                            Enrol / Withdraw
+                        </Button>
+                        <Button as={Link} to="edit" size="large" primary floated="right">
                             Edit
                         </Button>
                     </Grid.Column>
                     <Grid.Column width={3}>
-                        <Image src='https://react.semantic-ui.com/images/wireframe/media-paragraph.png' />
+                        <Header as='h3'>
+                            <Header.Content>
+                                Enrolled Students
+                            </Header.Content>
+                        </Header>
+                        <List divided selection>
+                            {
+                                (course.students || []).map((student, index) => (
+                                    <List.Item key={index}>
+                                        <PersonLabel
+                                            src="/"
+                                            name={student.name}
+                                            image={student.image}
+                                            size="huge"
+                                        />
+                                    </List.Item>
+                                ))
+                            }
+                        </List>
                     </Grid.Column>
                 </Grid>
             </Layout>

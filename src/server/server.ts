@@ -6,7 +6,8 @@ import * as cookieParser from 'cookie-parser';
 import * as compression from 'compression';
 import * as session from 'express-session';
 import { renderTemp } from './htmlTemplate';
-import { getCourses } from './api/courses';
+import { getCourses, getCourse, createCourse, saveCourse } from './api/courses';
+import { getLecturers } from './api/lecturers';
 
 const app = express();
 
@@ -34,6 +35,10 @@ app.use(session({
 // APIs
 
 app.get('/api/courses', getCourses);
+app.post('/api/course/create', createCourse);
+app.get('/api/course/:id', getCourse);
+app.post('/api/course/:id/save', saveCourse);
+app.get('/api/lecturers', getLecturers);
 
 // Delegate request to client side code
 app.get('/*', (req, res) => {

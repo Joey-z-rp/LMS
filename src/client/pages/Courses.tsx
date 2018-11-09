@@ -1,6 +1,6 @@
-import * as React                               from 'react';
-import { connect }                              from 'react-redux';
-import { Card, Header, Icon, Image, Segment, Placeholder }   from 'semantic-ui-react';
+import * as React from 'react';
+import { connect } from 'react-redux';
+import { Button, Card, Divider, Header, Icon, Image, Segment, Placeholder }   from 'semantic-ui-react';
 import { Link } from 'react-router-dom';
 import Layout from '../components/Layout'
 import { getCourses } from '../actions';
@@ -28,6 +28,10 @@ export class CoursesPage extends React.Component<any> {
                     <Icon name='book' circular />
                     <Header.Content>Available Courses</Header.Content>
                 </Header>
+                <Divider hidden />
+                <Button primary as={Link} to="/course/new">
+                    Create New Course
+                </Button>
                 <Segment loading={isFetching}>
                     <Card.Group centered>
                         {
@@ -44,8 +48,8 @@ export class CoursesPage extends React.Component<any> {
                                 : null
                         }
                         {
-                            courses.map((course) => (
-                                <Link to={`/course/${course.id}`} className="ui card">
+                            courses.map((course, index) => (
+                                <Link key={index} to={`/course/${course.id}/`} className="ui card">
                                     <Image src={course.img} />
                                     <Card.Content>
                                         <Card.Header>{course.name}</Card.Header>
