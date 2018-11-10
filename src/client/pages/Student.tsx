@@ -11,6 +11,7 @@ import {
     Image,
     Table,
     Checkbox,
+    Modal,
     Icon,
     Progress,
 } from 'semantic-ui-react';
@@ -29,7 +30,17 @@ const mapDispatchToProps = (dispatch) => ({
     load: (id) => dispatch(getStudent(id)),
 });
 
-export class StudentPage extends React.Component<any> {
+export class StudentPage extends React.Component<any, any> {
+
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            showConfirm: false,
+            isDeleting: false,
+        };
+    }
+
     componentDidMount() {
         this.props.load(this.props.match.params.id);
     }
@@ -161,12 +172,32 @@ export class StudentPage extends React.Component<any> {
                             </Table.Body>
                         </Table>
                         <Divider />
-                        <Button size="large" primary>
-                            Enrol / Withdraw
-                        </Button>
-                        <Button as={Link} to="edit" size="large" primary floated="right">
-                            Edit
-                        </Button>
+                        <MediaQuery minWidth={1000}>
+                            {(matches) => {
+                                const size = matches ? 'large' : 'small';
+                                return (
+                                    <React.Fragment>
+                                        <Button size={size} primary as={Link} to="enrol">
+                                            Enrol
+                                        </Button>
+                                        <Button size={size} primary as={Link} to="withdraw">
+                                            Withdraw
+                                        </Button>
+                                        <Button
+                                            size={size}
+                                            color="red"
+                                            floated="right"
+                                            onClick={() => this.setState({ showConfirm: true })}
+                                        >
+                                            Delete
+                                        </Button>
+                                        <Button as={Link} to="edit" size={size} primary floated="right">
+                                            Edit
+                                        </Button>
+                                    </React.Fragment>
+                                );
+                            }}
+                        </MediaQuery>
                     </Grid.Column>
                     <Grid.Column width={3}>
                         <Header as='h3'>
@@ -193,6 +224,34 @@ export class StudentPage extends React.Component<any> {
                         </List>
                     </Grid.Column>
                 </Grid>
+                <Modal size="tiny" open={this.state.showConfirm}>
+                    <Modal.Header>Delete Student</Modal.Header>
+                    <Modal.Content>
+                        <p>
+                            Are you sure you want to DELETE this student?
+                        </p>
+                    </Modal.Content>
+                    <Modal.Actions>
+                        <Button
+                            negative
+                            onClick={() => this.setState({ showConfirm: false })}
+                            disabled={this.state.isDeleting}
+                        >
+                            No
+                        </Button>
+                        <Button
+                            positive
+                            icon="checkmark"
+                            labelPosition="right"
+                            content="Yes"
+                            disabled={this.state.isDeleting}
+                            loading={this.state.isDeleting}
+                            onClick={() => {
+                                this.setState({ isDeleting: true });
+                            }}
+                        />
+                    </Modal.Actions>
+                </Modal>
             </Layout>
         );
     }

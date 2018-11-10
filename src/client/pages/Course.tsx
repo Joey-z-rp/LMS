@@ -9,6 +9,7 @@ import {
     Header,
     List,
     Image,
+    Modal,
     Table,
     Statistic,
 } from 'semantic-ui-react';
@@ -28,7 +29,17 @@ const mapDispatchToProps = (dispatch) => ({
     loadCourse: (id) => dispatch(getCourse(id)),
 });
 
-export class CoursePage extends React.Component<any> {
+export class CoursePage extends React.Component<any, any> {
+
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            showConfirm: false,
+            isDeleting: false,
+        };
+    }
+
     componentDidMount() {
         this.props.loadCourse(this.props.match.params.id);
     }
@@ -117,11 +128,17 @@ export class CoursePage extends React.Component<any> {
                                     <Table.Cell>
                                         <Header as='h4' disabled>
                                             <Header.Content>
-                                                Enrolled Students
+                                                Enrolment Status
                                             </Header.Content>
                                         </Header>
                                     </Table.Cell>
-                                    <Table.Cell>{course.students && course.students.length}</Table.Cell>
+                                    <Table.Cell>
+                                        <Statistic horizontal size="mini">
+                                            <Statistic.Label>{course.students && course.students.length}</Statistic.Label>
+                                            <Statistic.Label>/</Statistic.Label>
+                                            <Statistic.Label>{course.capacity}</Statistic.Label>
+                                        </Statistic>
+                                    </Table.Cell>
                                 </Table.Row>
                                 <Table.Row>
                                     <Table.Cell>
@@ -131,17 +148,37 @@ export class CoursePage extends React.Component<any> {
                                             </Header.Content>
                                         </Header>
                                     </Table.Cell>
-                                    <Table.Cell><Button primary>Download</Button></Table.Cell>
+                                    <Table.Cell><Button primary disabled>Download</Button></Table.Cell>
                                 </Table.Row>
                             </Table.Body>
                         </Table>
                         <Divider />
-                        <Button size="large" primary>
-                            Enrol / Withdraw
-                        </Button>
-                        <Button as={Link} to="edit" size="large" primary floated="right">
-                            Edit
-                        </Button>
+                        <MediaQuery minWidth={1000}>
+                            {(matches) => {
+                                const size = matches ? 'large' : 'small';
+                                return (
+                                    <React.Fragment>
+                                        <Button size={size} primary as={Link} to="enrol">
+                                            Enrol
+                                        </Button>
+                                        <Button size={size} primary as={Link} to="withdraw">
+                                            Withdraw
+                                        </Button>
+                                        <Button
+                                            size={size}
+                                            color="red"
+                                            floated="right"
+                                            onClick={() => this.setState({ showConfirm: true })}
+                                        >
+                                            Delete
+                                        </Button>
+                                        <Button as={Link} to="edit" size={size} primary floated="right">
+                                            Edit
+                                        </Button>
+                                    </React.Fragment>
+                                );
+                            }}
+                        </MediaQuery>
                     </Grid.Column>
                     <Grid.Column width={3}>
                         <Header as='h3'>
@@ -154,7 +191,7 @@ export class CoursePage extends React.Component<any> {
                                 (course.students || []).map((student, index) => (
                                     <List.Item key={index}>
                                         <PersonLabel
-                                            src="/"
+                                            src={`/student/${student.id}/`}
                                             name={student.name}
                                             image={student.image}
                                             size="large"
@@ -165,6 +202,34 @@ export class CoursePage extends React.Component<any> {
                         </List>
                     </Grid.Column>
                 </Grid>
+                <Modal size="tiny" open={this.state.showConfirm}>
+                    <Modal.Header>Delete Course</Modal.Header>
+                    <Modal.Content>
+                        <p>
+                            Are you sure you want to DELETE this course?
+                        </p>
+                    </Modal.Content>
+                    <Modal.Actions>
+                        <Button
+                            negative
+                            onClick={() => this.setState({ showConfirm: false })}
+                            disabled={this.state.isDeleting}
+                        >
+                            No
+                        </Button>
+                        <Button
+                            positive
+                            icon="checkmark"
+                            labelPosition="right"
+                            content="Yes"
+                            disabled={this.state.isDeleting}
+                            loading={this.state.isDeleting}
+                            onClick={() => {
+                                this.setState({ isDeleting: true });
+                            }}
+                        />
+                    </Modal.Actions>
+                </Modal>
             </Layout>
         );
     }

@@ -11,6 +11,7 @@ import StudentPage from './pages/Student';
 import CoursePage from './pages/Course';
 import NewOrEditCoursePage from './pages/NewAndEditCourse';
 import NewOrEditStudentPage from './pages/NewAndEditStudent';
+import EnrolOrWithdrawPage from './pages/EnrolOrWithdraw';
 
 const App = () => (
     <Switch>
@@ -21,10 +22,14 @@ const App = () => (
         <Redirect exact strict from="/student/:id" to="/student/:id/" />
         <Route component={StudentPage} exact strict path="/student/:id/" />
         <Route component={NewOrEditStudentPage} exact path="/student/:id/edit" />
+        <Route component={EnrolOrWithdrawPage} exact path="/student/:id/enrol" />
+        <Route component={EnrolOrWithdrawPage} exact path="/student/:id/withdraw" />
         <Route component={NewOrEditCoursePage} exact path="/course/new" />
         <Redirect exact strict from="/course/:id" to="/course/:id/" />
         <Route component={CoursePage} exact strict path="/course/:id/" />
         <Route component={NewOrEditCoursePage} exact path="/course/:id/edit" />
+        <Route component={EnrolOrWithdrawPage} exact path="/course/:id/enrol" />
+        <Route component={EnrolOrWithdrawPage} exact path="/course/:id/withdraw" />
     </Switch>
 );
 

@@ -60,14 +60,17 @@ export const getCourse = (req, res) => {
             description: 'React makes it painless to create interactive UIs. Design simple views for each state in your application, and React will efficiently update and render just the right components when your data changes.',
             students: [
                 {
+                    id: '232',
                     name: 'Super Man',
                     image: 'https://react.semantic-ui.com/images/avatar/small/joe.jpg',
                 },
                 {
+                    id: '232',
                     name: 'Super Man',
                     image: 'https://react.semantic-ui.com/images/avatar/small/joe.jpg',
                 },
                 {
+                    id: '232',
                     name: 'Super Man',
                     image: 'https://react.semantic-ui.com/images/avatar/small/joe.jpg',
                 },
@@ -78,6 +81,7 @@ export const getCourse = (req, res) => {
                 rating: 5,
             },
             image: 'https://react.semantic-ui.com/images/avatar/large/matthew.png',
+            capacity: 20,
         });
     }, 2000);
 };

@@ -9,6 +9,7 @@ import { renderTemp } from './htmlTemplate';
 import { getCourses, getCourse, createCourse, saveCourse } from './api/courses';
 import { getLecturers } from './api/lecturers';
 import { getStudents, searchStudents, getStudent, saveStudent, registerStudent } from './api/students';
+import { getEnrolData, enrolStudent, getWithdrawData, withdrawStudent } from './api/enrolAndWithdraw';
 
 const app = express();
 
@@ -45,6 +46,10 @@ app.post('/api/course/create', createCourse);
 app.get('/api/course/:id', getCourse);
 app.post('/api/course/:id/save', saveCourse);
 app.get('/api/lecturers', getLecturers);
+app.get('/api/enrol', getEnrolData);
+app.get('/api/withdraw', getWithdrawData);
+app.post('/api/enrol', enrolStudent);
+app.post('/api/withdraw', withdrawStudent);
 
 // Delegate request to client side code
 app.get('/*', (req, res) => {

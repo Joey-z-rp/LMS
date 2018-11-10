@@ -15,6 +15,8 @@ export const FETCHED_STUDENTS = 'FETCHED_STUDENTS';
 export const SEARCH_STUDENTS = 'SEARCH_STUDENTS';
 ​export const FETCHED_STUDENT = 'FETCHED_STUDENT';
 export const REGISTER_OR_SAVE_STUDENT = 'REGISTER_OR_SAVE_STUDENT';
+export const FETCH_ENROL_OR_WITHDRAW = 'FETCH_ENROL_OR_WITHDRAW';
+export const FETCHED_ENROL_OR_WITHDRAW_DATA = 'FETCHED_ENROL_OR_WITHDRAW_DATA';
 
 // action creators
 ​
@@ -68,6 +70,14 @@ export function fetchedStudent(student) {
 
 export function registerOrSaveStudent() {
     return { type: REGISTER_OR_SAVE_STUDENT };
+}
+
+export function fetchEnrolOrWithdraw() {
+    return { type: FETCH_ENROL_OR_WITHDRAW };
+}
+
+export function fetchedEnrolOrWithdrawData(data) {
+    return { type: FETCHED_ENROL_OR_WITHDRAW_DATA, data };
 }
 
 // async actions
@@ -189,6 +199,58 @@ export function registerStudent(student) {
         return fetch('/api/student/register', {
             method: 'POST',
             body: JSON.stringify(student),
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        })
+            .then(res => res.json())
+            .then(res => true);
+    };
+}
+
+export function getEnrolData(courseId?, studentId?) {
+    return (dispatch) => {
+        dispatch(fetchEnrolOrWithdraw());
+
+        return fetch(`/api/enrol?courseId=${courseId}&studentId=${studentId}`)
+            .then(res => res.json())
+            .then(data => dispatch(fetchedEnrolOrWithdrawData(data)));
+    };
+}
+
+export function enrolStudent(courseId, studentId) {
+    return (dispatch) => {
+        dispatch(fetchEnrolOrWithdraw());
+
+        return fetch('/api/enrol', {
+            method: 'POST',
+            body: JSON.stringify({ courseId, studentId }),
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        })
+            .then(res => res.json())
+            .then(res => true);
+    };
+}
+
+export function getWithdrawData(courseId?, studentId?) {
+    return (dispatch) => {
+        dispatch(fetchEnrolOrWithdraw());
+
+        return fetch(`/api/withdraw?courseId=${courseId}&studentId=${studentId}`)
+            .then(res => res.json())
+            .then(data => dispatch(fetchedEnrolOrWithdrawData(data)));
+    };
+}
+
+export function withdrawStudent(courseId, studentId) {
+    return (dispatch) => {
+        dispatch(fetchEnrolOrWithdraw());
+
+        return fetch('/api/withdraw', {
+            method: 'POST',
+            body: JSON.stringify({ courseId, studentId }),
             headers: {
                 'Content-Type': 'application/json',
             },
