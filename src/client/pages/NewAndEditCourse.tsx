@@ -2,30 +2,16 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import {
     Button,
-    Card,
-    Divider,
-    Dimmer,
-    Loader,
     Form,
-    Grid,
     Header,
-    List,
     Icon,
-    Input,
-    Image,
     Segment,
     Select,
-    Table,
     TextArea,
-    Placeholder,
-    Statistic,
-    Label,
 } from 'semantic-ui-react';
-import MediaQuery from 'react-responsive';
-import { Link } from 'react-router-dom';
 import "react-datepicker/dist/react-datepicker.css";
 import DatePicker from "react-datepicker";
-import moment from 'moment';
+import * as moment from 'moment';
 import Layout from '../components/Layout';
 import {getLecturers, createCourse, getCourse, saveCourse } from '../actions';
 
@@ -47,7 +33,7 @@ const mapDispatchToProps = (dispatch) => ({
     save: (course, id) => dispatch(saveCourse(course, id)),
 });
 
-export class NewCoursePage extends React.Component<any, any> {
+export class NewOrEditCoursePage extends React.Component<any, any> {
     private name;
     private image;
 
@@ -203,4 +189,4 @@ export class NewCoursePage extends React.Component<any, any> {
     }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(NewCoursePage);
+export default connect(mapStateToProps, mapDispatchToProps)(NewOrEditCoursePage);

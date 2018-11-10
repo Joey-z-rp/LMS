@@ -10,31 +10,32 @@ import {
     List,
     Image,
     Table,
-    Statistic,
+    Checkbox,
+    Icon,
+    Progress,
 } from 'semantic-ui-react';
 import MediaQuery from 'react-responsive';
 import { Link } from 'react-router-dom';
-import Calendar from 'react-calendar';
 import Layout from '../components/Layout';
-import { getCourse } from '../actions';
+import { getStudent } from '../actions';
 import PersonLabel from '../components/PersonLabel';
 
 const mapStateToProps = (state) => ({
-    course: state.course.course,
-    isFetching: state.course.isFetching,
+    student: state.students.student,
+    isFetching: state.students.isFetching,
 });
 
 const mapDispatchToProps = (dispatch) => ({
-    loadCourse: (id) => dispatch(getCourse(id)),
+    load: (id) => dispatch(getStudent(id)),
 });
 
-export class CoursePage extends React.Component<any> {
+export class StudentPage extends React.Component<any> {
     componentDidMount() {
-        this.props.loadCourse(this.props.match.params.id);
+        this.props.load(this.props.match.params.id);
     }
 
     render() {
-        const { course, isFetching } = this.props;
+        const { student, isFetching } = this.props;
 
         return (
             <Layout>
@@ -47,16 +48,19 @@ export class CoursePage extends React.Component<any> {
                         )
                         : null
                 }
-                <Header size="huge" icon textAlign="center">
-                    <Header.Content>{course.name}</Header.Content>
+                <Header size="huge" textAlign="center">
+                    <Header.Content>
+                        <Icon name='student' size="small" />
+                        Student Details
+                    </Header.Content>
                 </Header>
                 <Grid stackable>
                     <Grid.Column width={4}>
                         <MediaQuery maxWidth={768}>
-                            <Image rounded centered size="small" src={course.image} />
+                            <Image rounded centered size="small" src={student.image} />
                         </MediaQuery>
                         <MediaQuery minWidth={768}>
-                            <Image rounded src={course.image} />
+                            <Image rounded src={student.image} />
                         </MediaQuery>
                     </Grid.Column>
                     <Grid.Column width={9}>
@@ -66,50 +70,79 @@ export class CoursePage extends React.Component<any> {
                                 <Table.Row>
                                     <Table.Cell width={2}>
                                         <Header as='h4' disabled>
-                                            Description
+                                            Name
                                         </Header>
                                     </Table.Cell>
                                     <Table.Cell>
-                                        <p>{course.description}</p>
+                                        <Header>{student.name}</Header>
                                     </Table.Cell>
                                 </Table.Row>
                                 <Table.Row>
                                     <Table.Cell>
                                         <Header as='h4' disabled>
                                             <Header.Content>
-                                                Duration
+                                                Email
                                             </Header.Content>
                                         </Header>
                                     </Table.Cell>
                                     <Table.Cell>
-                                        <Statistic horizontal size="mini">
-                                            <Statistic.Label>{course.from}</Statistic.Label>
-                                            <Statistic.Label>To</Statistic.Label>
-                                            <Statistic.Label>{course.to}</Statistic.Label>
-                                        </Statistic>
-                                        <MediaQuery minWidth={768}>
-                                            <Calendar
-                                                value={[new Date(course.from || null), new Date(course.to || null)]}
-                                                selectRange
-                                            />
-                                        </MediaQuery>
+                                        <Header>{student.email}</Header>
                                     </Table.Cell>
                                 </Table.Row>
                                 <Table.Row>
                                     <Table.Cell>
                                         <Header as='h4' disabled>
                                             <Header.Content>
-                                                Lecturer
+                                                Phone Number
                                             </Header.Content>
                                         </Header>
                                     </Table.Cell>
                                     <Table.Cell>
-                                        <PersonLabel
-                                            src="/"
-                                            name={course.lecturer && course.lecturer.name}
-                                            image={course.lecturer&& course.lecturer.image}
-                                            size="huge"
-                                            rating={course.lecturer && course.lecturer.rating}
+                                        <Header>{student.phone}</Header>
+                                    </Table.Cell>
+                                </Table.Row>
+                                <Table.Row>
+                                    <Table.Cell>
+                                        <Header as='h4' disabled>
+                                            <Header.Content>
+                                                Registered
+                                            </Header.Content>
+                                        </Header>
+                                    </Table.Cell>
+                                    <Table.Cell>
+                                        <Header>
+                                            {student.registered}
+                                        </Header>
+                                    </Table.Cell>
+                                </Table.Row>
+                                <Table.Row>
+                                    <Table.Cell>
+                                        <Header as='h4' disabled>
+                                            <Header.Content>
+                                                Enrolled Courses
+                                            </Header.Content>
+                                        </Header>
+                                    </Table.Cell>
+                                    <Table.Cell>
+                                        <Header>
+                                            {student.enrolledCourse && student.enrolledCourse.length}
+                                            </Header>
+                                    </Table.Cell>
+                                </Table.Row>
+                                <Table.Row>
+                                    <Table.Cell>
+                                        <Header as='h4' disabled>
+                                            <Header.Content>
+                                                Attendance
+                                            </Header.Content>
+                                        </Header>
+                                    </Table.Cell>
+                                    <Table.Cell>
+                                        <Progress
+                                            value={`${student.attendance}`}
+                                            total='100'
+                                            progress='percent'
+                                            color={student.attendance > 75 ? 'green' : 'yellow'}
                                         />
                                     </Table.Cell>
                                 </Table.Row>
@@ -117,21 +150,13 @@ export class CoursePage extends React.Component<any> {
                                     <Table.Cell>
                                         <Header as='h4' disabled>
                                             <Header.Content>
-                                                Enrolled Students
+                                                Premium Plan
                                             </Header.Content>
                                         </Header>
                                     </Table.Cell>
-                                    <Table.Cell>{course.students && course.students.length}</Table.Cell>
-                                </Table.Row>
-                                <Table.Row>
                                     <Table.Cell>
-                                        <Header as='h4' disabled>
-                                            <Header.Content>
-                                                Curriculum
-                                            </Header.Content>
-                                        </Header>
+                                        <Checkbox toggle disabled checked={student.premium} />
                                     </Table.Cell>
-                                    <Table.Cell><Button primary>Download</Button></Table.Cell>
                                 </Table.Row>
                             </Table.Body>
                         </Table>
@@ -146,22 +171,25 @@ export class CoursePage extends React.Component<any> {
                     <Grid.Column width={3}>
                         <Header as='h3'>
                             <Header.Content>
-                                Enrolled Students
+                                Enrolled Courses
                             </Header.Content>
                         </Header>
                         <List divided selection>
                             {
-                                (course.students || []).map((student, index) => (
-                                    <List.Item key={index}>
-                                        <PersonLabel
-                                            src="/"
-                                            name={student.name}
-                                            image={student.image}
-                                            size="large"
-                                        />
-                                    </List.Item>
-                                ))
+                                (student.enrolledCourse || []).map((course, index) => {
+                                    return (
+                                        <List.Item key={index}>
+                                            <PersonLabel
+                                                src={`/course/${course.id}/`}
+                                                name={course.name}
+                                                image={course.image}
+                                                size="large"
+                                            />
+                                        </List.Item>
+                                    );
+                                })
                             }
+
                         </List>
                     </Grid.Column>
                 </Grid>
@@ -170,4 +198,4 @@ export class CoursePage extends React.Component<any> {
     }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(CoursePage);
+export default connect(mapStateToProps, mapDispatchToProps)(StudentPage);

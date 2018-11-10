@@ -2,6 +2,7 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import { Button, Card, Divider, Header, Icon, Image, Segment, Placeholder }   from 'semantic-ui-react';
 import { Link } from 'react-router-dom';
+import * as moment from 'moment';
 import Layout from '../components/Layout'
 import { getCourses } from '../actions';
 
@@ -48,22 +49,36 @@ export class CoursesPage extends React.Component<any> {
                                 : null
                         }
                         {
-                            courses.map((course, index) => (
-                                <Link key={index} to={`/course/${course.id}/`} className="ui card">
-                                    <Image src={course.img} />
-                                    <Card.Content>
-                                        <Card.Header>{course.name}</Card.Header>
-                                        <Card.Meta>
-                                            <span className='date'>{`${course.from} to ${course.to}`}</span>
-                                        </Card.Meta>
-                                        <Card.Description>{course.description}</Card.Description>
-                                    </Card.Content>
-                                    <Card.Content extra>
-                                        <Icon name='user' />
-                                        {`${course.students} students`}
-                                    </Card.Content>
-                                </Link>
-                            ))
+                            courses.map((course, index) => {
+                                let labelOption = { corner: 'right' } as any;
+                                if (course.students > 10) {
+                                    labelOption = { ...labelOption, ...{ icon: 'hotjar', color: 'red' } };
+                                } else if (Math.abs(moment().diff(moment(course.from), 'days')) < 5) {
+                                    labelOption = { ...labelOption, ...{ icon: 'bullhorn', color: 'green' } };
+                                } else {
+                                    labelOption = undefined;
+                                }
+
+                                return (
+                                    <Link key={index} to={`/course/${course.id}/`} className="ui card">
+                                        <Image
+                                            src={course.img}
+                                            label={labelOption}
+                                        />
+                                        <Card.Content>
+                                            <Card.Header>{course.name}</Card.Header>
+                                            <Card.Meta>
+                                                <span className='date'>{`${course.from} to ${course.to}`}</span>
+                                            </Card.Meta>
+                                            <Card.Description>{course.description}</Card.Description>
+                                        </Card.Content>
+                                        <Card.Content extra>
+                                            <Icon name='user' />
+                                            {`${course.students} students`}
+                                        </Card.Content>
+                                    </Link>
+                                );
+                            })
                         }
                     </Card.Group>
                 </Segment>

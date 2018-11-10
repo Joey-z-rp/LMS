@@ -8,6 +8,7 @@ import * as session from 'express-session';
 import { renderTemp } from './htmlTemplate';
 import { getCourses, getCourse, createCourse, saveCourse } from './api/courses';
 import { getLecturers } from './api/lecturers';
+import { getStudents, searchStudents, getStudent, saveStudent, registerStudent } from './api/students';
 
 const app = express();
 
@@ -35,6 +36,11 @@ app.use(session({
 // APIs
 
 app.get('/api/courses', getCourses);
+app.get('/api/students', getStudents);
+app.get('/api/students/search/:search', searchStudents);
+app.post('/api/student/register', registerStudent);
+app.get('/api/student/:id', getStudent);
+app.post('/api/student/:id/save', saveStudent);
 app.post('/api/course/create', createCourse);
 app.get('/api/course/:id', getCourse);
 app.post('/api/course/:id/save', saveCourse);
