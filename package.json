@@ -45,8 +45,7 @@
     "runNodemon": "gulp runNodemon",
     "build": "gulp build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject",
-    "heroku-postbuild": "webpack --config ./webpack.js"
+    "eject": "react-scripts eject"
   },
   "eslintConfig": {
     "extends": "react-app"
