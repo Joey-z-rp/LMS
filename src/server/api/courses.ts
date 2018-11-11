@@ -1,102 +1,75 @@
-export const getCourses = (req, res) => {
-    setTimeout(() => {
-        res.json([
-            {
-                name: 'Web Full Stack',
-                id: '123',
-                from: '2018-11-06',
-                to: '2018-11-22',
-                description: 'blah blahblah blahblah blah blah blah',
-                students: 3,
-                img: 'https://react.semantic-ui.com/images/avatar/large/matthew.png',
-            },
-            {
-                name: 'Web Full Stack2',
-                id: '123',
-                from: '2018-11-09',
-                to: '2018-11-22',
-                description: 'blah blahblah blahblah blah blah blah',
-                students: 22,
-                img: 'https://react.semantic-ui.com/images/avatar/large/matthew.png',
-            },
-            {
-                name: 'Web Full Stack3',
-                id: '123',
-                from: '2018-11-01',
-                to: '2018-11-22',
-                description: 'React makes it painless to create interactive UIs. Design simple views for each state in your application, and React will efficiently update and render just the right components when your data changes.',
-                students: 10,
-                img: 'https://react.semantic-ui.com/images/avatar/large/matthew.png',
-            },
-            {
-                name: 'Web Full Stack4',
-                id: '123',
-                from: '2018-11-10',
-                to: '2018-11-22',
-                description: 'blah blahblah blahblah blah blah blah',
-                students: 7,
-                img: 'https://react.semantic-ui.com/images/avatar/large/matthew.png',
-            },
-            {
-                name: 'Web Full Stack5',
-                id: '123',
-                from: '2018-11-01',
-                to: '2018-11-22',
-                description: 'blah blahblah blahblah blah blah blah',
-                students: 12,
-                img: 'https://react.semantic-ui.com/images/avatar/large/matthew.png',
-            },
-        ]);
-    }, 2000)
+import * as moment from 'moment';
+import Course from '../models/Course';
+import Student from '../models/Student';
+import Lecturer from '../models/Lecturer';
+import { processLecturer } from './lecturers';
+
+export const getCourses = async (req, res) => {
+    const courses = await Course.find({});
+
+    const result = courses.map(course => processCourse(course));
+
+    res.json(result);
 };
 
-export const getCourse = (req, res) => {
-    setTimeout(()=>{
-        res.json({
-            name: 'Web Full Stack5',
-            id: '123',
-            from: '2018-11-07',
-            to: '2018-11-20',
-            description: 'React makes it painless to create interactive UIs. Design simple views for each state in your application, and React will efficiently update and render just the right components when your data changes.',
-            students: [
-                {
-                    id: '232',
-                    name: 'Super Man',
-                    image: 'https://react.semantic-ui.com/images/avatar/small/joe.jpg',
-                },
-                {
-                    id: '232',
-                    name: 'Super Man',
-                    image: 'https://react.semantic-ui.com/images/avatar/small/joe.jpg',
-                },
-                {
-                    id: '232',
-                    name: 'Super Man',
-                    image: 'https://react.semantic-ui.com/images/avatar/small/joe.jpg',
-                },
-            ],
-            lecturer: {
-                name: 'Super Man',
-                image: 'https://react.semantic-ui.com/images/avatar/small/joe.jpg',
-                rating: 5,
-            },
-            image: 'https://react.semantic-ui.com/images/avatar/large/matthew.png',
-            capacity: 20,
-        });
-    }, 2000);
+export const getCourse = async (req, res) => {
+    const course = await Course.findById(req.params.id);
+
+    const [students, lecturer] = await Promise.all([
+        Student.find({ _id: { $in: course.students } }),
+        Lecturer.findById(course.lecturer),
+    ]);
+
+    const result = {
+        ...processCourse(course),
+        students,
+        lecturer: processLecturer(lecturer),
+    };
+
+    res.json(result);
 };
 
-export const createCourse = (req, res) => {
-    console.log(req.body);
-    setTimeout(() => {
-        res.json(req.body);
-    }, 1000)
+export const createCourse = async (req, res) => {
+    const course = new Course(createCourseFromData(req.body));
+
+    const result = await course.save();
+
+    res.json(result);
 };
 
-export const saveCourse = (req, res) => {
-    console.log(req.body);
-    console.log(req.params.id);
-    setTimeout(() => {
-        res.json(req.body);
-    }, 1000)
+export const saveCourse = async (req, res) => {
+    const course = createCourseFromData(req.body);
+    delete course.students;
+
+    const result = await Course.findByIdAndUpdate(req.params.id, course);
+
+    res.json(result);
+
 };
+
+export function processCourse(rawCourse) {
+    return {
+        id: rawCourse._id.toString(),
+        name: rawCourse.name,
+        description: rawCourse.description,
+        from: moment(rawCourse.from).format('YYYY-MM-DD'),
+        to: moment(rawCourse.to).format('YYYY-MM-DD'),
+        image: rawCourse.image,
+        capacity: rawCourse.capacity,
+        lecturer: rawCourse.lecturer,
+        students: rawCourse.students.length,
+    };
+}
+
+function createCourseFromData(data) {
+    return {
+        name: data.name,
+        description: data.description,
+        from: moment(data.from),
+        to: moment(data.to),
+        image: data.image,
+        capacity: data.capacity,
+        students: [],
+        lecturer: data.lecturer,
+    };
+}

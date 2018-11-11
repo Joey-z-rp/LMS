@@ -5,6 +5,7 @@ import * as bodyParser from 'body-parser';
 import * as cookieParser from 'cookie-parser';
 import * as compression from 'compression';
 import * as session from 'express-session';
+import mongoose from 'mongoose';
 import { renderTemp } from './htmlTemplate';
 import { getCourses, getCourse, createCourse, saveCourse } from './api/courses';
 import { getLecturers } from './api/lecturers';
@@ -34,6 +35,18 @@ app.use(session({
     cookie: { secure: true }
 }));
 
+// DB connection
+
+const CONNECTION_STRING = 'mongodb://admin:password1@ds157923.mlab.com:57923/lms';
+
+app.use('/api/*', (req, res, next) => {
+    mongoose.connect(CONNECTION_STRING);
+    const db = mongoose.connection;
+    req.app.locals.db = db;
+    db.on('error', console.error.bind(console, 'MongoDB connection error:'));
+    next();
+});
+
 // APIs
 
 app.get('/api/courses', getCourses);
@@ -50,6 +63,12 @@ app.get('/api/enrol', getEnrolData);
 app.get('/api/withdraw', getWithdrawData);
 app.post('/api/enrol', enrolStudent);
 app.post('/api/withdraw', withdrawStudent);
+
+app.use('/api/*', (req, res, next) => {
+    console.log(req.app.locals.db.readyState)
+
+    next();
+});
 
 // Delegate request to client side code
 app.get('/*', (req, res) => {

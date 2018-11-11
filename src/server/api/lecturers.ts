@@ -1,22 +1,28 @@
-export const getLecturers = (req, res) => {
-    setTimeout(()=>{
-        res.json([
-            {
-                name: 'Sarah Smith',
-                image: 'https://react.semantic-ui.com/images/avatar/large/matthew.png',
-            },
-            {
-                name: 'David Semmy',
-                image: 'https://react.semantic-ui.com/images/avatar/large/matthew.png',
-            },
-            {
-                name: 'John Smith',
-                image: 'https://react.semantic-ui.com/images/avatar/large/matthew.png',
-            },
-            {
-                name: 'Super Man',
-                image: 'https://react.semantic-ui.com/images/avatar/small/joe.jpg',
-            },
-        ]);
-    }, 1000);
+import Lecturer from '../models/Lecturer';
+
+export const getLecturers = async (req, res) => {
+    // const lecturer = new Lecturer({
+    //     name: 'Jeffrey Chadwick',
+    //     email: 'jeffreychadwick@gmail.com',
+    //     phone: '0476123123',
+    //     image: 'https://pickaface.net/gallery/avatar/sheela.kalawar52185c54f360f.png',
+    //     coursesTeaching: [],
+    //     rating: 5,
+    // });
+    //
+    // await lecturer.save();
+    const lecturers = (await Lecturer.find({})).map(lecturer => processLecturer(lecturer));
+
+    res.json(lecturers);
 };
+
+export function processLecturer(rawLecturer) {
+    return {
+        id: rawLecturer._id.toString(),
+        name: rawLecturer.name,
+        email: rawLecturer.email,
+        image: rawLecturer.image,
+        coursesTeaching: rawLecturer.coursesTeaching,
+        rating: rawLecturer.rating,
+    }
+}

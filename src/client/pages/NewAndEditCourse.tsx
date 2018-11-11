@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import {
     Button,
     Form,
+    Divider,
     Header,
     Icon,
     Segment,
@@ -24,6 +25,7 @@ const mapStateToProps = (state) => ({
     image: state.course.course.image,
     isLoading: state.course.isFetching,
     lecturers: state.course.lecturerList,
+    capacity: state.course.course.capacity,
 });
 
 const mapDispatchToProps = (dispatch) => ({
@@ -36,6 +38,7 @@ const mapDispatchToProps = (dispatch) => ({
 export class NewOrEditCoursePage extends React.Component<any, any> {
     private name;
     private image;
+    private capacity;
 
     constructor(props) {
         super(props);
@@ -77,8 +80,10 @@ export class NewOrEditCoursePage extends React.Component<any, any> {
             from: this.state.from,
             to: this.state.to,
             lecturer: this.state.lecturer,
+            capacity: this.capacity.value,
             image: this.image.value,
         };
+
         if (this.editMode()) {
             const id = this.props.match.params.id;
             this.props.save(course, id).then((redirect) => {
@@ -92,18 +97,17 @@ export class NewOrEditCoursePage extends React.Component<any, any> {
     }
 
     render() {
-        const { lecturers, isLoading, name, image } = this.props;
+        const { lecturers, isLoading, name, image, capacity } = this.props;
 
         const options = lecturers.map((lecturer) => ({
             text: lecturer.name,
-            value: lecturer.name,
+            value: lecturer.id,
             image: { avatar: true, src: lecturer.image },
         }));
 
         let selected;
-        if (this.state.lecturer) {
-            selected = (options.find(option => option.value === this.state.lecturer.name) || {}).value;
-        }
+        if (this.state.lecturer) selected = this.state.lecturer.id;
+        console.log(this.state.lecturer)
 
         return (
             <Layout>
@@ -150,6 +154,16 @@ export class NewOrEditCoursePage extends React.Component<any, any> {
                                 />
                             </Form.Field>
                         </Form.Group>
+                        <Divider hidden />
+                        <Form.Field>
+                            <label>Capacity</label>
+                            <input
+                                placeholder='Course Capacity'
+                                type="number"
+                                ref={e => this.capacity = e}
+                                defaultValue={this.editMode() ? capacity : 0}
+                            />
+                        </Form.Field>
                         <Form.Field>
                             <label>Lecturer</label>
                             <Select

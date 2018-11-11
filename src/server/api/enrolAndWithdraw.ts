@@ -1,206 +1,143 @@
+import Course from '../models/Course';
+import Student from '../models/Student';
+import { processCourse } from './courses';
+import { mapStudent } from './students'
 
-export const getEnrolData = (req, res) => {
+export const getEnrolData = async (req, res) => {
+    const courseId = req.query.courseId;
+    const studentId = req.query.studentId;
+
+    if (courseId && studentId === 'undefined') { // Course page initiated
+
+        const [course, students] = await Promise.all([
+            Course.findById(courseId),
+            Student.find({}),
+        ]);
+
+        const enrolledStudents = findCoursesOrStudents(students, course, true);
+
+        const enrollableStudents = findCoursesOrStudents(students, course, false);
+
+        const processedCourse = processCourse(course);
+        processedCourse.students = enrolledStudents.map(student => mapStudent(student));
+        return res.json({
+            courses: [processedCourse],
+            students: enrollableStudents.map(student => mapStudent(student)),
+        });
+    }
+
+    // Student page initiated
+
+    const [courses, students] = await Promise.all([
+        Course.find({}),
+        Student.find({}),
+    ]);
+
+    const student = students.find(student => student._id.toString() === studentId);
+
+    const enrollableCourses = findCoursesOrStudents(courses, student, false);
+
+    res.json({
+        courses: processCourses(enrollableCourses, students),
+        students: [mapStudent(student)],
+    });
+};
+
+export const enrolStudent = async (req, res) => {
+    const courseId = req.body.courseId;
+    const studentId = req.body.studentId;
+    const [course, student] = await Promise.all([
+        Course.findById(courseId),
+        Student.findById(studentId),
+    ]);
+
+    course.students.push(studentId);
+    student.enrolledCourses.push(courseId);
+
+    await Promise.all([
+        Course.findByIdAndUpdate(courseId, course),
+        Student.findByIdAndUpdate(studentId, student),
+    ]);
+
+    res.json({});
+};
+
+export const getWithdrawData = async (req, res) => {
     console.log(req.query)
 
-    setTimeout(()=>{
-        res.json({
-            courses: [
-                {
-                    name: 'Web Full Stack5',
-                    id: '123',
-                    from: '2018-11-07',
-                    to: '2018-11-20',
-                    description: 'React makes it painless to create interactive UIs. Design simple views for each state in your application, and React will efficiently update and render just the right components when your data changes.',
-                    students: [
-                        {
-                            id: '223',
-                            name: 'Super Man',
-                            image: 'https://react.semantic-ui.com/images/avatar/small/joe.jpg',
-                        },
-                        {
-                            id: '223',
-                            name: 'Super Man',
-                            image: 'https://react.semantic-ui.com/images/avatar/small/joe.jpg',
-                        },
-                        {
-                            id: '223',
-                            name: 'Super Man',
-                            image: 'https://react.semantic-ui.com/images/avatar/small/joe.jpg',
-                        },
-                    ],
-                    lecturer: {
-                        name: 'Super Man',
-                        image: 'https://react.semantic-ui.com/images/avatar/small/joe.jpg',
-                        rating: 5,
-                    },
-                    image: 'https://react.semantic-ui.com/images/avatar/large/matthew.png',
-                    capacity: 20,
-                },
-                {
-                    name: 'Web Front End5',
-                    id: '1243',
-                    from: '2018-11-20',
-                    to: '2018-11-30',
-                    description: 'dsafdsfdsafsda fdsafds fds dsaf dn simple views for each state in your application, and React will efficiently update and render just the right components when your data changes.',
-                    students: [
-                        {
-                            id: '223',
-                            name: 'Super Man4',
-                            image: 'https://react.semantic-ui.com/images/avatar/small/joe.jpg',
-                        },
-                        {
-                            id: '223',
-                            name: 'Super Man8',
-                            image: 'https://react.semantic-ui.com/images/avatar/small/joe.jpg',
-                        },
-                        {
-                            id: '223',
-                            name: 'Super Man99',
-                            image: 'https://react.semantic-ui.com/images/avatar/small/joe.jpg',
-                        },
-                    ],
-                    lecturer: {
-                        name: 'Super Man',
-                        image: 'https://react.semantic-ui.com/images/avatar/small/joe.jpg',
-                        rating: 5,
-                    },
-                    image: 'https://react.semantic-ui.com/images/avatar/small/joe.jpg',
-                    capacity: 10,
-                }
-            ],
-            students: [
-                {
-                    id: '223',
-                    name: 'Super Man2',
-                    email: 'ffdsaf@gmail.com',
-                    image: 'https://react.semantic-ui.com/images/avatar/small/joe.jpg',
-                    phone: '3342343242'
-                },
-                {
-                    id: '2234',
-                    name: 'Super Man3',
-                    email: 'ffds33232af@gmail.com',
-                    image: 'https://react.semantic-ui.com/images/avatar/large/matthew.png',
-                    phone: '3342343333432242'
-                },
-                {
-                    id: '22333',
-                    name: 'Super Man4',
-                    email: 'ffd$$#@saf@gmail.com',
-                    image: 'https://react.semantic-ui.com/images/avatar/small/joe.jpg',
-                    phone: '343242'
-                },
-            ],
+    const courseId = req.query.courseId;
+    const studentId = req.query.studentId;
+
+    if (courseId && studentId === 'undefined') { // Course page initiated
+
+        const [course, students] = await Promise.all([
+            Course.findById(courseId),
+            Student.find({}),
+        ]);
+
+        const enrolledStudents = findCoursesOrStudents(students, course, true);
+
+        const processedCourse = processCourse(course);
+        const processedStudents = enrolledStudents.map(student => mapStudent(student));
+        processedCourse.students = processedStudents;
+
+        return res.json({
+            courses: [processedCourse],
+            students: processedStudents,
         });
-    }, 2000);
+    }
+
+    // Student page initiated
+
+    const [courses, students] = await Promise.all([
+        Course.find({}),
+        Student.find({}),
+    ]);
+
+    const student = students.find(student => student._id.toString() === studentId);
+
+    const enrolledCourses = findCoursesOrStudents(courses, student, true);
+
+    res.json({
+        courses: processCourses(enrolledCourses, students),
+        students: [mapStudent(student)],
+    });
 };
 
-export const enrolStudent = (req, res) => {
-    console.log(req.body);
-    setTimeout(() => {
-        res.json(req.body);
-    }, 1000)
-};
-
-export const getWithdrawData = (req, res) => {
-    console.log(req.query)
-
-    setTimeout(()=>{
-        res.json({
-            courses: [
-                {
-                    name: 'Web Full Stack5',
-                    id: '123',
-                    from: '2018-11-07',
-                    to: '2018-11-20',
-                    description: 'React makes it painless to create interactive UIs. Design simple views for each state in your application, and React will efficiently update and render just the right components when your data changes.',
-                    students: [
-                        {
-                            id: '223',
-                            name: 'Super Man',
-                            image: 'https://react.semantic-ui.com/images/avatar/small/joe.jpg',
-                        },
-                        {
-                            id: '223',
-                            name: 'Super Man',
-                            image: 'https://react.semantic-ui.com/images/avatar/small/joe.jpg',
-                        },
-                        {
-                            id: '223',
-                            name: 'Super Man',
-                            image: 'https://react.semantic-ui.com/images/avatar/small/joe.jpg',
-                        },
-                    ],
-                    lecturer: {
-                        name: 'Super Man',
-                        image: 'https://react.semantic-ui.com/images/avatar/small/joe.jpg',
-                        rating: 5,
-                    },
-                    image: 'https://react.semantic-ui.com/images/avatar/large/matthew.png',
-                    capacity: 20,
-                },
-                {
-                    name: 'Web Front End5',
-                    id: '1243',
-                    from: '2018-11-20',
-                    to: '2018-11-30',
-                    description: 'dsafdsfdsafsda fdsafds fds dsaf dn simple views for each state in your application, and React will efficiently update and render just the right components when your data changes.',
-                    students: [
-                        {
-                            id: '223',
-                            name: 'Super Man4',
-                            image: 'https://react.semantic-ui.com/images/avatar/small/joe.jpg',
-                        },
-                        {
-                            id: '223',
-                            name: 'Super Man8',
-                            image: 'https://react.semantic-ui.com/images/avatar/small/joe.jpg',
-                        },
-                        {
-                            id: '223',
-                            name: 'Super Man99',
-                            image: 'https://react.semantic-ui.com/images/avatar/small/joe.jpg',
-                        },
-                    ],
-                    lecturer: {
-                        name: 'Super Man',
-                        image: 'https://react.semantic-ui.com/images/avatar/small/joe.jpg',
-                        rating: 5,
-                    },
-                    image: 'https://react.semantic-ui.com/images/avatar/small/joe.jpg',
-                    capacity: 10,
-                }
-            ],
-            students: [
-                {
-                    id: '223',
-                    name: 'Super Man2',
-                    email: 'ffdsaf@gmail.com',
-                    image: 'https://react.semantic-ui.com/images/avatar/small/joe.jpg',
-                    phone: '3342343242'
-                },
-                {
-                    id: '2234',
-                    name: 'Super Man3',
-                    email: 'ffds33232af@gmail.com',
-                    image: 'https://react.semantic-ui.com/images/avatar/large/matthew.png',
-                    phone: '3342343333432242'
-                },
-                {
-                    id: '22333',
-                    name: 'Super Man4',
-                    email: 'ffd$$#@saf@gmail.com',
-                    image: 'https://react.semantic-ui.com/images/avatar/small/joe.jpg',
-                    phone: '343242'
-                },
-            ],
-        });
-    }, 2000);
-};
-
-export const withdrawStudent = (req, res) => {
+export const withdrawStudent = async (req, res) => {
     console.log({withdraw: req.body});
-    setTimeout(() => {
-        res.json(req.body);
-    }, 1000)
+
+    const courseId = req.body.courseId;
+    const studentId = req.body.studentId;
+    const [course, student] = await Promise.all([
+        Course.findById(courseId),
+        Student.findById(studentId),
+    ]);
+
+    course.students = course.students.filter(s => s !== student._id.toString());
+    student.enrolledCourses = student.enrolledCourses.filter(c => c !== course._id.toString());
+
+    await Promise.all([
+        Course.findByIdAndUpdate(courseId, course),
+        Student.findByIdAndUpdate(studentId, student),
+    ]);
+
+    res.json({});
 };
+
+function processCourses(courses, students) {
+    return courses.map(course => ({
+        ...processCourse(course),
+        students: students.filter(s => course.students.includes(s._id.toString())),
+    }));
+}
+
+function findCoursesOrStudents(toBeFiltered, filterAgainst, include: boolean) {
+    return toBeFiltered.filter(courseOrStudent =>
+        include
+            ? filterAgainst[filterAgainst.enrolledCourses ? 'enrolledCourses' : 'students']
+                .includes(courseOrStudent._id.toString())
+            : !filterAgainst[filterAgainst.enrolledCourses ? 'enrolledCourses' : 'students']
+                .includes(courseOrStudent._id.toString())
+    );
+}

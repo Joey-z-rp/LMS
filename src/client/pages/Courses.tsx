@@ -62,7 +62,7 @@ export class CoursesPage extends React.Component<any> {
                                 return (
                                     <Link key={index} to={`/course/${course.id}/`} className="ui card">
                                         <Image
-                                            src={course.img}
+                                            src={course.image}
                                             label={labelOption}
                                         />
                                         <Card.Content>

@@ -1,145 +1,92 @@
-export const getStudents = (req, res) => {
-    setTimeout(()=>{
-        res.json([
-            {
-                id: '123',
-                name: 'Sarah Smith',
-                image: 'https://react.semantic-ui.com/images/avatar/large/matthew.png',
-                email: 'users@gmail.com',
-                registered: '2018-10-03',
-                enrolledCourse: [
-                    '32342',
-                    '32344',
-                    '5634',
-                    '56565',
-                ],
-            },
-            {
-                id: '123',
-                name: 'David Semmy',
-                image: 'https://react.semantic-ui.com/images/avatar/small/stevie.jpg',
-                email: 'users@gmail.com',
-                registered: '2018-10-03',
-                enrolledCourse: [
-                    '32342',
-                    '32344',
-                    '5634',
-                    '56565',
-                ],
-            },
-            {
-                id: '123',
-                name: 'John Smith',
-                image: 'https://react.semantic-ui.com/images/avatar/large/matthew.png',
-                email: 'users@gmail.com',
-                registered: '2018-10-03',
-                enrolledCourse: [
-                    '32342',
-                    '32344',
-                    '5634',
-                    '56565',
-                ],
-            },
-            {
-                id: '123',
-                name: 'Super Man',
-                image: 'https://react.semantic-ui.com/images/avatar/small/joe.jpg',
-                email: 'users@gmail.com',
-                registered: '2018-10-03',
-                enrolledCourse: [
-                    '32342',
-                    '32344',
-                    '5634',
-                    '56565',
-                ],
-            },
-        ]);
-    }, 1000);
+import Student from '../models/Student';
+import Course from '../models/Course';
+import * as moment from "moment";
+
+
+export const getStudents = async (req, res) => {
+    const students = await Student.find({});
+
+    const result = processStudents(students);
+
+    res.json(result);
 };
 
-export const searchStudents = (req, res) => {
-    console.log(req.params.search);
+export const searchStudents = async (req, res) => {
+    const students = await Student.find({ name: new RegExp(req.params.search, 'gi') });
 
-    if (req.params.search === 'none') {
-        res.json([]);
-    } else {
-        setTimeout(()=>{
-            res.json([
-                {
-                    id: '123',
-                    name: 'Sarah Smith',
-                    image: 'https://react.semantic-ui.com/images/avatar/large/matthew.png',
-                    email: 'users@gmail.com',
-                    registered: '2018-10-03',
-                    enrolledCourse: [
-                        '32342',
-                        '32344',
-                        '5634',
-                        '56565',
-                    ],
-                },
-                {
-                    id: '123',
-                    name: 'David Semmy',
-                    image: 'https://react.semantic-ui.com/images/avatar/small/stevie.jpg',
-                    email: 'users@gmail.com',
-                    registered: '2018-10-03',
-                    enrolledCourse: [
-                        '32342',
-                        '32344',
-                        '5634',
-                        '56565',
-                    ],
-                },
-            ]);
-        }, 1000);
-    }
+    const result = processStudents(students);
+
+    res.json(result)
 };
 
-export const getStudent = (req, res) => {
-    setTimeout(()=>{
-        res.json({
-            id: '123',
-            name: 'Sarah Smith',
-            image: 'https://react.semantic-ui.com/images/avatar/small/stevie.jpg',
-            email: 'users@gmail.com',
-            phone: '0433343134',
-            registered: '2018-10-03',
-            enrolledCourse: [
-                {
-                    id: '1234',
-                    name: 'Web Full Stack1',
-                    image: 'https://react.semantic-ui.com/images/avatar/large/matthew.png'
-                },
-                {
-                    id: '12345',
-                    name: 'Web Full Stack2',
-                    image: 'https://react.semantic-ui.com/images/avatar/large/matthew.png'
-                },
-                {
-                    id: '12347',
-                    name: 'Web Full Stack3',
-                    image: 'https://react.semantic-ui.com/images/avatar/large/matthew.png'
-                },
-            ],
-            attendance: 74,
-            premium: true,
-        });
-    }, 1000);
+export const getStudent = async (req, res) => {
+    const rawStudent = await Student.findById(req.params.id);
+    const enrolledCourse = await Course.find({ _id: { $in: rawStudent.enrolledCourses } });
+    const student = mapStudent(rawStudent);
+    student.enrolledCourse = enrolledCourse;
+
+    res.json(student);
 };
 
-export const registerStudent = (req, res) => {
+export const registerStudent = async (req, res) => {
     console.log(req.body);
-    setTimeout(() => {
-        res.json(req.body);
-    }, 1000)
+
+    const student = new Student(createStudentFromData(req.body));
+
+    const result = await student.save();
+
+    res.json(result);
 };
 
-export const saveStudent = (req, res) => {
-    console.log(req.body);
-    console.log(req.params.id);
-    setTimeout(() => {
-        res.json(req.body);
-    }, 1000)
+export const saveStudent = async (req, res) => {
+    const student = createStudentFromData(req.body);
+    delete student.registered;
+    delete student.attendance;
+    delete student.enrolledCourses;
+
+    const result = await Student.findByIdAndUpdate(req.params.id, student);
+
+    res.json(result);
 };
 
+export function mapStudent(rawStudent) {
+    return {
+        id: rawStudent._id.toString(),
+        name: rawStudent.name,
+        email: rawStudent.email,
+        phone: rawStudent.phone,
+        registered: moment(rawStudent.registered).format('YYYY-MM-DD'),
+        image: rawStudent.image,
+        enrolledCourse: rawStudent.enrolledCourse,
+        attendance: rawStudent.attendance,
+        premium: rawStudent.premium,
+    };
+}
+
+function countEnrolledCourses(enrolledCourse) {
+    return enrolledCourse
+        ? enrolledCourse.length
+        : 0;
+}
+
+function processStudents(students) {
+    return students.map((rawStudent) => {
+        const student = mapStudent(rawStudent);
+        student.enrolledCourse = countEnrolledCourses(student.enrolledCourse);
+
+        return student;
+    });
+}
+
+function createStudentFromData(data) {
+    return {
+        name: data.name,
+        email: data.email,
+        phone: data.phone,
+        registered: moment(),
+        image: data.image,
+        attendance: Math.floor((Math.random() * 100) + 1), // Random number of 1 to 100
+        enrolledCourses: [],
+        premium: data.premium,
+    };
+}
