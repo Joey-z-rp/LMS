@@ -22,7 +22,7 @@ const router = expressPromiseRouter({
 
 app.use(router);
 
-app.listen(PORT);
+app.listen(process.env.NODE_SERVER_PORT || PORT);
 
 console.info(`Server is running on port ${PORT}`);
 
