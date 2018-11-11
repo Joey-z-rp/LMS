@@ -13,6 +13,7 @@ import { getStudents, searchStudents, getStudent, saveStudent, registerStudent }
 import { getEnrolData, enrolStudent, getWithdrawData, withdrawStudent } from './api/enrolAndWithdraw';
 
 const app = express();
+const PORT = 3000;
 
 const router = expressPromiseRouter({
     caseSensitive: true,
@@ -21,7 +22,9 @@ const router = expressPromiseRouter({
 
 app.use(router);
 
-app.listen(3000);
+app.listen(PORT);
+
+console.info(`Server is running on port ${PORT}`);
 
 app.use(compression());
 app.use('/app.js', express.static(path.join(__dirname, './public/js/app.js')));
@@ -40,7 +43,7 @@ app.use(session({
 const CONNECTION_STRING = 'mongodb://admin:password1@ds157923.mlab.com:57923/lms';
 
 app.use('/api/*', (req, res, next) => {
-    mongoose.connect(CONNECTION_STRING);
+    mongoose.connect(CONNECTION_STRING, { useNewUrlParser: true });
     const db = mongoose.connection;
     req.app.locals.db = db;
     db.on('error', console.error.bind(console, 'MongoDB connection error:'));
