@@ -6,6 +6,7 @@ const webpack = require('webpack');
 
 const server = {
     mode: 'production',
+    devtool: 'source-map',
     node: {
         __dirname: false,
     },
@@ -66,6 +67,7 @@ const server = {
 
 const client = {
     mode: 'development',
+    devtool: 'source-map',
     entry: {
         client: ['babel-polyfill', './src/client/index.tsx'],
     },

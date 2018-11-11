@@ -70,8 +70,7 @@ typings/
 /coverage
 
 # production
-/build/public/js/app.js.map
-/build/server.js.map
+/build
 
 # misc
 .DS_Store
