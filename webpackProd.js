@@ -1,6 +1,6 @@
 const path = require('path');
 const AssetsPlugin = require('assets-webpack-plugin');
-const UglifyJSPlugin = require('uglifyjs-webpack-plugin');
+const TerserPlugin = require('terser-webpack-plugin');
 const nodeExternals = require('webpack-node-externals');
 const webpack = require('webpack');
 
@@ -142,13 +142,13 @@ const client = {
         extensions: ['.ts', '.tsx', '.js'],
     },
     plugins: [
-        new UglifyJSPlugin({
-            sourceMap: true,
-        }),
         new webpack.DefinePlugin({
             'process.env.NODE_ENV': JSON.stringify('production'),
         }),
     ],
+    optimization: {
+        minimizer: [new TerserPlugin()],
+    }
 };
 
 module.exports = [

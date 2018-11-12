@@ -34,9 +34,9 @@
     "redux-thunk": "^2.3.0",
     "semantic-ui-react": "^0.83.0",
     "session-file-store": "^1.2.0",
+    "terser-webpack-plugin": "^1.1.0",
     "ts-loader": "^5.3.0",
     "typescript": "^3.1.6",
-    "uglifyjs-webpack-plugin": "^2.0.1",
     "webpack": "^4.25.1",
     "webpack-cli": "^3.1.2",
     "webpack-node-externals": "^1.7.2"
