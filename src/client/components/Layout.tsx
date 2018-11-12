@@ -1,11 +1,12 @@
-import * as React                                         from 'react';
-import { connect }                                        from 'react-redux';
+import * as React from 'react';
+import { connect } from 'react-redux';
 import { NavLink, withRouter } from 'react-router-dom';
 import MediaQuery from 'react-responsive';
-import { Button, Container, Icon, Menu, Sidebar, Segment }          from 'semantic-ui-react';
-import { toggleSidebar }                                  from '../actions';
+import { Button, Container, Icon, Menu, Sidebar, Segment } from 'semantic-ui-react';
+import { toggleSidebar } from '../actions';
 import * as s from './layout/Layout.css';
-import Footer                                             from './Footer';
+import Footer from './Footer';
+import MessageComponent from './MessageComponent';
 
 const mapStateToProps = (state) => ({
     showSidebar: state.nav.showSidebar,
@@ -24,6 +25,7 @@ export class Layout extends React.Component<any> {
 
         return (
             <Sidebar.Pushable as={Segment} className={`${s.fullHeight} ${s.flex} ${s.inheritBg}`}>
+                <MessageComponent />
                 <Sidebar
                     as={Menu}
                     animation='push'

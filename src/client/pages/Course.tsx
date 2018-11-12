@@ -17,7 +17,7 @@ import MediaQuery from 'react-responsive';
 import { Link } from 'react-router-dom';
 import Calendar from 'react-calendar';
 import Layout from '../components/Layout';
-import { getCourse } from '../actions';
+import { getCourse, deleteCourse } from '../actions';
 import PersonLabel from '../components/PersonLabel';
 
 const mapStateToProps = (state) => ({
@@ -27,6 +27,7 @@ const mapStateToProps = (state) => ({
 
 const mapDispatchToProps = (dispatch) => ({
     loadCourse: (id) => dispatch(getCourse(id)),
+    delete: (id) => dispatch(deleteCourse(id)),
 });
 
 export class CoursePage extends React.Component<any, any> {
@@ -42,6 +43,12 @@ export class CoursePage extends React.Component<any, any> {
 
     componentDidMount() {
         this.props.loadCourse(this.props.match.params.id);
+    }
+
+    delete() {
+        this.props.delete(this.props.match.params.id).then((redirect) => {
+            if (redirect) this.props.history.push('/courses');
+        });
     }
 
     render() {
@@ -226,6 +233,7 @@ export class CoursePage extends React.Component<any, any> {
                             loading={this.state.isDeleting}
                             onClick={() => {
                                 this.setState({ isDeleting: true });
+                                this.delete();
                             }}
                         />
                     </Modal.Actions>

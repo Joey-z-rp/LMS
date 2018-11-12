@@ -3,6 +3,7 @@ import Course from '../models/Course';
 import Student from '../models/Student';
 import Lecturer from '../models/Lecturer';
 import { processLecturer } from './lecturers';
+import { mapStudent } from "./students";
 
 export const getCourses = async (req, res) => {
     const courses = await Course.find({});
@@ -22,7 +23,7 @@ export const getCourse = async (req, res) => {
 
     const result = {
         ...processCourse(course),
-        students,
+        students: students.map(student => mapStudent(student)),
         lecturer: processLecturer(lecturer),
     };
 
@@ -45,6 +46,12 @@ export const saveCourse = async (req, res) => {
 
     res.json(result);
 
+};
+
+export const deleteCourse = async (req, res) => {
+    const result = await Course.findByIdAndRemove(req.params.id);
+
+    res.json(result);
 };
 
 export function processCourse(rawCourse) {

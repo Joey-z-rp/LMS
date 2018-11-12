@@ -7,9 +7,9 @@ import * as compression from 'compression';
 import * as session from 'express-session';
 import mongoose from 'mongoose';
 import { renderTemp } from './htmlTemplate';
-import { getCourses, getCourse, createCourse, saveCourse } from './api/courses';
+import { getCourses, getCourse, createCourse, saveCourse, deleteCourse } from './api/courses';
 import { getLecturers } from './api/lecturers';
-import { getStudents, searchStudents, getStudent, saveStudent, registerStudent } from './api/students';
+import { getStudents, searchStudents, getStudent, saveStudent, registerStudent, deleteStudent } from './api/students';
 import { getEnrolData, enrolStudent, getWithdrawData, withdrawStudent } from './api/enrolAndWithdraw';
 
 const app = express();
@@ -26,12 +26,12 @@ app.listen(process.env.PORT || PORT);
 
 console.info(`Server is running on port ${PORT}`);
 
-app.use(compression());
-app.use('/app.js', express.static(path.join(__dirname, './public/js/app.js')));
-app.use(cookieParser());
-app.use(bodyParser.urlencoded({ limit: '1mb', extended: true }));
-app.use(bodyParser.json({ limit: '1mb' }));
-app.use(session({
+router.use(compression());
+router.use('/app.js', express.static(path.join(__dirname, './public/js/app.js')));
+router.use(cookieParser());
+router.use(bodyParser.urlencoded({ limit: '1mb', extended: true }));
+router.use(bodyParser.json({ limit: '1mb' }));
+router.use(session({
     secret: 'olms',
     resave: false,
     saveUninitialized: true,
@@ -42,7 +42,7 @@ app.use(session({
 
 const CONNECTION_STRING = 'mongodb://admin:password1@ds157923.mlab.com:57923/lms';
 
-app.use('/api/*', (req, res, next) => {
+router.use('/api/*', (req, res, next) => {
     mongoose.connect(CONNECTION_STRING, { useNewUrlParser: true });
     const db = mongoose.connection;
     req.app.locals.db = db;
@@ -52,29 +52,49 @@ app.use('/api/*', (req, res, next) => {
 
 // APIs
 
-app.get('/api/courses', getCourses);
-app.get('/api/students', getStudents);
-app.get('/api/students/search/:search', searchStudents);
-app.post('/api/student/register', registerStudent);
-app.get('/api/student/:id', getStudent);
-app.post('/api/student/:id/save', saveStudent);
-app.post('/api/course/create', createCourse);
-app.get('/api/course/:id', getCourse);
-app.post('/api/course/:id/save', saveCourse);
-app.get('/api/lecturers', getLecturers);
-app.get('/api/enrol', getEnrolData);
-app.get('/api/withdraw', getWithdrawData);
-app.post('/api/enrol', enrolStudent);
-app.post('/api/withdraw', withdrawStudent);
+router.get('/api/courses', getCourses);
+router.get('/api/students', getStudents);
+router.get('/api/students/search/:search', searchStudents);
+router.post('/api/student/register', registerStudent);
+router.delete('/api/student/delete/:id', deleteStudent);
+router.get('/api/student/:id', getStudent);
+router.post('/api/student/:id/save', saveStudent);
+router.post('/api/course/create', createCourse);
+router.delete('/api/course/delete/:id', deleteCourse);
+router.get('/api/course/:id', getCourse);
+router.post('/api/course/:id/save', saveCourse);
+router.get('/api/lecturers', getLecturers);
+router.get('/api/enrol', getEnrolData);
+router.get('/api/withdraw', getWithdrawData);
+router.post('/api/enrol', enrolStudent);
+router.post('/api/withdraw', withdrawStudent);
 
-app.use('/api/*', (req, res, next) => {
+router.use('/api/*', (req, res, next) => {
     console.log(req.app.locals.db.readyState)
 
     next();
 });
 
 // Delegate request to client side code
-app.get('/*', (req, res) => {
+router.get('/*', (req, res) => {
     const html = renderTemp();
     res.send(`<!doctype html>${html}`);
+});
+
+// Error handling
+
+router.use((err, req, res, next) => {
+    if (err && req.accepts('application/json')) {
+        return res.status(err.status || 500).json({
+            message: err.message || 'Server error',
+            name:    err.name || 'Error',
+            stack:   (err.stack || '').split('\n'),
+        });
+    }
+
+    if (err && req.accepts('html')) {
+        return res.status(err.status || 500).send(err.message || 'Server error');
+    }
+
+    return next();
 });

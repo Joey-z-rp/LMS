@@ -18,7 +18,7 @@ import {
 import MediaQuery from 'react-responsive';
 import { Link } from 'react-router-dom';
 import Layout from '../components/Layout';
-import { getStudent } from '../actions';
+import { getStudent, deleteStudent } from '../actions';
 import PersonLabel from '../components/PersonLabel';
 
 const mapStateToProps = (state) => ({
@@ -28,6 +28,7 @@ const mapStateToProps = (state) => ({
 
 const mapDispatchToProps = (dispatch) => ({
     load: (id) => dispatch(getStudent(id)),
+    delete: (id) => dispatch(deleteStudent(id)),
 });
 
 export class StudentPage extends React.Component<any, any> {
@@ -43,6 +44,12 @@ export class StudentPage extends React.Component<any, any> {
 
     componentDidMount() {
         this.props.load(this.props.match.params.id);
+    }
+
+    delete() {
+        this.props.delete(this.props.match.params.id).then((redirect) => {
+            if (redirect) this.props.history.push('/students');
+        });
     }
 
     render() {
@@ -248,6 +255,7 @@ export class StudentPage extends React.Component<any, any> {
                             loading={this.state.isDeleting}
                             onClick={() => {
                                 this.setState({ isDeleting: true });
+                                this.delete();
                             }}
                         />
                     </Modal.Actions>

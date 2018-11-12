@@ -1,4 +1,4 @@
-import fetch from 'cross-fetch';
+import fetch from './lib/fetch';
 
 // action types
 ​
@@ -17,6 +17,8 @@ export const SEARCH_STUDENTS = 'SEARCH_STUDENTS';
 export const REGISTER_OR_SAVE_STUDENT = 'REGISTER_OR_SAVE_STUDENT';
 export const FETCH_ENROL_OR_WITHDRAW = 'FETCH_ENROL_OR_WITHDRAW';
 export const FETCHED_ENROL_OR_WITHDRAW_DATA = 'FETCHED_ENROL_OR_WITHDRAW_DATA';
+export const SET_MESSAGE = 'SET_MESSAGE';
+export const HIDE_MESSAGE = 'HIDE_MESSAGE';
 
 // action creators
 ​
@@ -80,6 +82,14 @@ export function fetchedEnrolOrWithdrawData(data) {
     return { type: FETCHED_ENROL_OR_WITHDRAW_DATA, data };
 }
 
+export function setMessage(message) {
+    return { type: SET_MESSAGE, message };
+}
+
+export function hideMessage() {
+    return { type: HIDE_MESSAGE };
+}
+
 // async actions
 
 export function getCourses() {
@@ -87,8 +97,11 @@ export function getCourses() {
         dispatch(fetchCourses());
 
         return fetch('/api/courses')
-            .then(res => res.json())
-            .then(courses => dispatch(fetchedCourses(courses)));
+            .then(courses => dispatch(fetchedCourses(courses)))
+            .catch(err => dispatch(setMessage({
+                type: 'error',
+                content: err.message,
+            })));
     };
 }
 
@@ -97,8 +110,11 @@ export function getCourse(id) {
         dispatch(fetchCourse());
 
         return fetch(`/api/course/${id}`)
-            .then(res => res.json())
-            .then(course => dispatch(fetchedCourse(course)));
+            .then(course => dispatch(fetchedCourse(course)))
+            .catch(err => dispatch(setMessage({
+                type: 'error',
+                content: err.message,
+            })));
     };
 }
 
@@ -107,8 +123,11 @@ export function getLecturers() {
         dispatch(fetchLecturers());
 
         return fetch('/api/lecturers')
-            .then(res => res.json())
-            .then(lecturers => dispatch(fetchedLecturers(lecturers)));
+            .then(lecturers => dispatch(fetchedLecturers(lecturers)))
+            .catch(err => dispatch(setMessage({
+                type: 'error',
+                content: err.message,
+            })));
     };
 }
 
@@ -119,12 +138,19 @@ export function createCourse(course) {
         return fetch('/api/course/create', {
             method: 'POST',
             body: JSON.stringify(course),
-            headers: {
-                'Content-Type': 'application/json',
-            },
         })
-            .then(res => res.json())
-            .then(res => true);
+            .then(res => {
+                dispatch(setMessage({
+                    type: 'success',
+                    title: 'COURSE CREATED',
+                    content: `Successfully created coures ${res.name}`
+                }));
+                return true;
+            })
+            .catch(err => dispatch(setMessage({
+                type: 'error',
+                content: err.message,
+            })));
     };
 }
 
@@ -135,12 +161,19 @@ export function saveCourse(course, id) {
         return fetch(`/api/course/${id}/save`, {
             method: 'POST',
             body: JSON.stringify(course),
-            headers: {
-                'Content-Type': 'application/json',
-            },
         })
-            .then(res => res.json())
-            .then(res => true);
+            .then(res => {
+                dispatch(setMessage({
+                    type: 'success',
+                    title: 'COURSE UPDATED',
+                    content: `Successfully updated coures ${res.name}`
+                }));
+                return true;
+            })
+            .catch(err => dispatch(setMessage({
+                type: 'error',
+                content: err.message,
+            })));
     };
 }
 
@@ -149,8 +182,11 @@ export function getStudents() {
         dispatch(fetchStudents());
 
         return fetch('/api/students')
-            .then(res => res.json())
-            .then(students => dispatch(fetchedStudents(students)));
+            .then(students => dispatch(fetchedStudents(students)))
+            .catch(err => dispatch(setMessage({
+                type: 'error',
+                content: err.message,
+            })));
     };
 }
 
@@ -161,8 +197,11 @@ export function searchStudents(search) {
         dispatch(searchStudentsAction(search));
 
         return fetch(`/api/students/search/${search}`)
-            .then(res => res.json())
-            .then(students => dispatch(fetchedStudents(students)));
+            .then(students => dispatch(fetchedStudents(students)))
+            .catch(err => dispatch(setMessage({
+                type: 'error',
+                content: err.message,
+            })));
     };
 }
 
@@ -171,8 +210,11 @@ export function getStudent(id) {
         dispatch(fetchStudents());
 
         return fetch(`/api/student/${id}`)
-            .then(res => res.json())
-            .then(student => dispatch(fetchedStudent(student)));
+            .then(student => dispatch(fetchedStudent(student)))
+            .catch(err => dispatch(setMessage({
+                type: 'error',
+                content: err.message,
+            })));
     };
 }
 
@@ -183,12 +225,19 @@ export function saveStudent(student, id) {
         return fetch(`/api/student/${id}/save`, {
             method: 'POST',
             body: JSON.stringify(student),
-            headers: {
-                'Content-Type': 'application/json',
-            },
         })
-            .then(res => res.json())
-            .then(res => true);
+            .then(res => {
+                dispatch(setMessage({
+                    type: 'success',
+                    title: 'STUDENT UPDATED',
+                    content: `Successfully updated student ${res.name}`
+                }));
+                return true;
+            })
+            .catch(err => dispatch(setMessage({
+                type: 'error',
+                content: err.message,
+            })));
     };
 }
 
@@ -199,12 +248,19 @@ export function registerStudent(student) {
         return fetch('/api/student/register', {
             method: 'POST',
             body: JSON.stringify(student),
-            headers: {
-                'Content-Type': 'application/json',
-            },
         })
-            .then(res => res.json())
-            .then(res => true);
+            .then(res => {
+                dispatch(setMessage({
+                    type: 'success',
+                    title: 'STUDENT REGISTERED',
+                    content: `Successfully registered student ${res.name}`
+                }));
+                return true;
+            })
+            .catch(err => dispatch(setMessage({
+                type: 'error',
+                content: err.message,
+            })));
     };
 }
 
@@ -213,8 +269,11 @@ export function getEnrolData(courseId?, studentId?) {
         dispatch(fetchEnrolOrWithdraw());
 
         return fetch(`/api/enrol?courseId=${courseId}&studentId=${studentId}`)
-            .then(res => res.json())
-            .then(data => dispatch(fetchedEnrolOrWithdrawData(data)));
+            .then(data => dispatch(fetchedEnrolOrWithdrawData(data)))
+            .catch(err => dispatch(setMessage({
+                type: 'error',
+                content: err.message,
+            })));
     };
 }
 
@@ -225,12 +284,19 @@ export function enrolStudent(courseId, studentId) {
         return fetch('/api/enrol', {
             method: 'POST',
             body: JSON.stringify({ courseId, studentId }),
-            headers: {
-                'Content-Type': 'application/json',
-            },
         })
-            .then(res => res.json())
-            .then(res => true);
+            .then(res => {
+                dispatch(setMessage({
+                    type: 'success',
+                    title: 'ENROLLED',
+                    content: `Successfully enrolled`
+                }));
+                return true;
+            })
+            .catch(err => dispatch(setMessage({
+                type: 'error',
+                content: err.message,
+            })));
     };
 }
 
@@ -239,8 +305,11 @@ export function getWithdrawData(courseId?, studentId?) {
         dispatch(fetchEnrolOrWithdraw());
 
         return fetch(`/api/withdraw?courseId=${courseId}&studentId=${studentId}`)
-            .then(res => res.json())
-            .then(data => dispatch(fetchedEnrolOrWithdrawData(data)));
+            .then(data => dispatch(fetchedEnrolOrWithdrawData(data)))
+            .catch(err => dispatch(setMessage({
+                type: 'error',
+                content: err.message,
+            })));
     };
 }
 
@@ -251,11 +320,58 @@ export function withdrawStudent(courseId, studentId) {
         return fetch('/api/withdraw', {
             method: 'POST',
             body: JSON.stringify({ courseId, studentId }),
-            headers: {
-                'Content-Type': 'application/json',
-            },
         })
-            .then(res => res.json())
-            .then(res => true);
+            .then(res => {
+                dispatch(setMessage({
+                    type: 'success',
+                    title: 'WITHDRAWED',
+                    content: `Successfully withdrawed`
+                }));
+                return true;
+            })
+            .catch(err => dispatch(setMessage({
+                type: 'error',
+                content: err.message,
+            })));
+    };
+}
+
+export function deleteCourse(id) {
+    return (dispatch) => {
+        return fetch(`/api/course/delete/${id}`, {
+            method: 'DELETE',
+        })
+            .then(res => {
+                dispatch(setMessage({
+                    type: 'success',
+                    title: 'COURSE DELETED',
+                    content: `Successfully deleted course ${res.name}`
+                }));
+                return true;
+            })
+            .catch(err => dispatch(setMessage({
+                type: 'error',
+                content: err.message,
+            })));
+    };
+}
+
+export function deleteStudent(id) {
+    return (dispatch) => {
+        return fetch(`/api/student/delete/${id}`, {
+            method: 'DELETE',
+        })
+            .then(res => {
+                dispatch(setMessage({
+                    type: 'success',
+                    title: 'STUDENT DELETED',
+                    content: `Successfully deleted student ${res.name}`
+                }));
+                return true;
+            })
+            .catch(err => dispatch(setMessage({
+                type: 'error',
+                content: err.message,
+            })));
     };
 }

@@ -49,6 +49,12 @@ export const saveStudent = async (req, res) => {
     res.json(result);
 };
 
+export const deleteStudent = async (req, res) => {
+    const result = await Student.findByIdAndRemove(req.params.id);
+
+    res.json(result);
+};
+
 export function mapStudent(rawStudent) {
     return {
         id: rawStudent._id.toString(),
