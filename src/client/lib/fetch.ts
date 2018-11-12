@@ -11,7 +11,6 @@ export default function fetch(url: string, options?: any) {
     })
         .then(response => response.json())
         .then((json) => {
-            console.log(isError(json))
             if (isError(json)) {
                 throw json;
             }

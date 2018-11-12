@@ -19,6 +19,9 @@ export const FETCH_ENROL_OR_WITHDRAW = 'FETCH_ENROL_OR_WITHDRAW';
 export const FETCHED_ENROL_OR_WITHDRAW_DATA = 'FETCHED_ENROL_OR_WITHDRAW_DATA';
 export const SET_MESSAGE = 'SET_MESSAGE';
 export const HIDE_MESSAGE = 'HIDE_MESSAGE';
+export const LOGIN = 'LOGIN';
+export const CLEAR_LOGIN = 'CLEAR_LOGIN';
+export const LOGIN_FAILED = 'LOGIN_FAILED';
 
 // action creators
 ​
@@ -90,6 +93,18 @@ export function hideMessage() {
     return { type: HIDE_MESSAGE };
 }
 
+export function loginAction() {
+    return { type: LOGIN };
+}
+
+export function clearLogin() {
+    return { type: CLEAR_LOGIN };
+}
+
+export function loginFailed(err?) {
+    return { type: LOGIN_FAILED, err };
+}
+
 // async actions
 
 export function getCourses() {
@@ -143,14 +158,16 @@ export function createCourse(course) {
                 dispatch(setMessage({
                     type: 'success',
                     title: 'COURSE CREATED',
-                    content: `Successfully created coures ${res.name}`
+                    content: `Successfully created coures ${res.name}`,
                 }));
                 return true;
             })
-            .catch(err => dispatch(setMessage({
-                type: 'error',
-                content: err.message,
-            })));
+            .catch(err => {
+                dispatch(setMessage({
+                    type: 'error',
+                    content: err.message,
+                }))
+            });
     };
 }
 
@@ -166,14 +183,16 @@ export function saveCourse(course, id) {
                 dispatch(setMessage({
                     type: 'success',
                     title: 'COURSE UPDATED',
-                    content: `Successfully updated coures ${res.name}`
+                    content: `Successfully updated coures ${res.name}`,
                 }));
                 return true;
             })
-            .catch(err => dispatch(setMessage({
-                type: 'error',
-                content: err.message,
-            })));
+            .catch(err => {
+                dispatch(setMessage({
+                    type: 'error',
+                    content: err.message,
+                }))
+            });
     };
 }
 
@@ -230,14 +249,16 @@ export function saveStudent(student, id) {
                 dispatch(setMessage({
                     type: 'success',
                     title: 'STUDENT UPDATED',
-                    content: `Successfully updated student ${res.name}`
+                    content: `Successfully updated student ${res.name}`,
                 }));
                 return true;
             })
-            .catch(err => dispatch(setMessage({
-                type: 'error',
-                content: err.message,
-            })));
+            .catch(err => {
+                dispatch(setMessage({
+                    type: 'error',
+                    content: err.message,
+                }))
+            });
     };
 }
 
@@ -253,14 +274,16 @@ export function registerStudent(student) {
                 dispatch(setMessage({
                     type: 'success',
                     title: 'STUDENT REGISTERED',
-                    content: `Successfully registered student ${res.name}`
+                    content: `Successfully registered student ${res.name}`,
                 }));
                 return true;
             })
-            .catch(err => dispatch(setMessage({
-                type: 'error',
-                content: err.message,
-            })));
+            .catch(err => {
+                dispatch(setMessage({
+                    type: 'error',
+                    content: err.message,
+                }))
+            });
     };
 }
 
@@ -289,14 +312,16 @@ export function enrolStudent(courseId, studentId) {
                 dispatch(setMessage({
                     type: 'success',
                     title: 'ENROLLED',
-                    content: `Successfully enrolled`
+                    content: `Successfully enrolled`,
                 }));
                 return true;
             })
-            .catch(err => dispatch(setMessage({
-                type: 'error',
-                content: err.message,
-            })));
+            .catch(err => {
+                dispatch(setMessage({
+                    type: 'error',
+                    content: err.message,
+                }))
+            });
     };
 }
 
@@ -325,14 +350,16 @@ export function withdrawStudent(courseId, studentId) {
                 dispatch(setMessage({
                     type: 'success',
                     title: 'WITHDRAWED',
-                    content: `Successfully withdrawed`
+                    content: `Successfully withdrawed`,
                 }));
                 return true;
             })
-            .catch(err => dispatch(setMessage({
-                type: 'error',
-                content: err.message,
-            })));
+            .catch(err => {
+                dispatch(setMessage({
+                    type: 'error',
+                    content: err.message,
+                }))
+            });
     };
 }
 
@@ -345,14 +372,16 @@ export function deleteCourse(id) {
                 dispatch(setMessage({
                     type: 'success',
                     title: 'COURSE DELETED',
-                    content: `Successfully deleted course ${res.name}`
+                    content: `Successfully deleted course ${res.name}`,
                 }));
                 return true;
             })
-            .catch(err => dispatch(setMessage({
-                type: 'error',
-                content: err.message,
-            })));
+            .catch(err => {
+                dispatch(setMessage({
+                    type: 'error',
+                    content: err.message,
+                }))
+            });
     };
 }
 
@@ -365,13 +394,36 @@ export function deleteStudent(id) {
                 dispatch(setMessage({
                     type: 'success',
                     title: 'STUDENT DELETED',
-                    content: `Successfully deleted student ${res.name}`
+                    content: `Successfully deleted student ${res.name}`,
                 }));
                 return true;
             })
-            .catch(err => dispatch(setMessage({
-                type: 'error',
-                content: err.message,
-            })));
+            .catch(err => {
+                dispatch(setMessage({
+                    type: 'error',
+                    content: err.message,
+                }))
+            });
+    };
+}
+
+export function login(email, password) {
+    return (dispatch) => {
+        dispatch(loginAction());
+
+        return fetch('/api/login', {
+            method: 'POST',
+            body: JSON.stringify({ email, password }),
+        })
+            .then((res) => {
+                if (res.status === 'successful') {
+                    dispatch(clearLogin());
+                    return true;
+                }
+                dispatch(loginFailed());
+            })
+            .catch(err => {
+                dispatch(loginFailed(err))
+            });
     };
 }

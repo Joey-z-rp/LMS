@@ -6,6 +6,7 @@ import nav from './nav';
 import students from './students';
 import enrolOrWithdraw from './enrolOrWithdraw';
 import message from './message';
+import login from './login';
 
 export default combineReducers({
     course,
@@ -14,4 +15,5 @@ export default combineReducers({
     students,
     enrolOrWithdraw,
     message,
+    login,
 });

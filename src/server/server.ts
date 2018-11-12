@@ -5,15 +5,18 @@ import * as bodyParser from 'body-parser';
 import * as cookieParser from 'cookie-parser';
 import * as compression from 'compression';
 import * as session from 'express-session';
+import * as sessionfileStore from 'session-file-store';
 import mongoose from 'mongoose';
 import { renderTemp } from './htmlTemplate';
 import { getCourses, getCourse, createCourse, saveCourse, deleteCourse } from './api/courses';
 import { getLecturers } from './api/lecturers';
 import { getStudents, searchStudents, getStudent, saveStudent, registerStudent, deleteStudent } from './api/students';
 import { getEnrolData, enrolStudent, getWithdrawData, withdrawStudent } from './api/enrolAndWithdraw';
+import { login } from './api/login';
 
 const app = express();
 const PORT = 3000;
+const FileStore = sessionfileStore(session);
 
 const router = expressPromiseRouter({
     caseSensitive: true,
@@ -32,11 +35,28 @@ router.use(cookieParser());
 router.use(bodyParser.urlencoded({ limit: '1mb', extended: true }));
 router.use(bodyParser.json({ limit: '1mb' }));
 router.use(session({
+    name: 'lms',
     secret: 'olms',
     resave: false,
     saveUninitialized: true,
-    cookie: { secure: true }
+    cookie: {
+        maxAge: 3600000,
+    },
+    store: new FileStore({ path: '../sessions/' }),
 }));
+
+// Authentication
+
+router.use('/*', (req, res, next) => {
+    const whiteList = [/\/login(\?redirect=.*)?$/, /\/api\/login/];
+
+    if (whiteList.some(regex => regex.test(req.originalUrl))
+        || (req.session.user && req.session.user.email && req.session.user.admin)) {
+        return next();
+    }
+
+    res.redirect(`/login?redirect=${req.originalUrl}`);
+});
 
 // DB connection
 
@@ -52,6 +72,7 @@ router.use('/api/*', (req, res, next) => {
 
 // APIs
 
+router.post('/api/login', login);
 router.get('/api/courses', getCourses);
 router.get('/api/students', getStudents);
 router.get('/api/students/search/:search', searchStudents);
@@ -68,12 +89,6 @@ router.get('/api/enrol', getEnrolData);
 router.get('/api/withdraw', getWithdrawData);
 router.post('/api/enrol', enrolStudent);
 router.post('/api/withdraw', withdrawStudent);
-
-router.use('/api/*', (req, res, next) => {
-    console.log(req.app.locals.db.readyState)
-
-    next();
-});
 
 // Delegate request to client side code
 router.get('/*', (req, res) => {

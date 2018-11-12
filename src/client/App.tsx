@@ -12,9 +12,11 @@ import CoursePage from './pages/Course';
 import NewOrEditCoursePage from './pages/NewAndEditCourse';
 import NewOrEditStudentPage from './pages/NewAndEditStudent';
 import EnrolOrWithdrawPage from './pages/EnrolOrWithdraw';
+import LoginPage from './pages/Login';
 
 const App = () => (
     <Switch>
+        <Route component={LoginPage} exact path="/login" />
         <Redirect exact from="/" to="/courses/" />
         <Route component={CoursesPage} exact path="/courses/" />
         <Route component={StudentsPage} exact path="/students/" />
