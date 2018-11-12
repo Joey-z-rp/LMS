@@ -5,7 +5,6 @@ import * as bodyParser from 'body-parser';
 import * as cookieParser from 'cookie-parser';
 import * as compression from 'compression';
 import * as session from 'express-session';
-import * as sessionfileStore from 'session-file-store';
 import mongoose from 'mongoose';
 import { renderTemp } from './htmlTemplate';
 import { getCourses, getCourse, createCourse, saveCourse, deleteCourse } from './api/courses';
@@ -16,7 +15,6 @@ import { login } from './api/login';
 
 const app = express();
 const PORT = 3000;
-const FileStore = sessionfileStore(session);
 
 const router = expressPromiseRouter({
     caseSensitive: true,
@@ -42,7 +40,6 @@ router.use(session({
     cookie: {
         maxAge: 3600000,
     },
-    store: new FileStore({ path: '../sessions/' }),
 }));
 
 // Authentication
