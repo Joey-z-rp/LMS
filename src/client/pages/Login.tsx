@@ -39,7 +39,7 @@ export class LoginPage extends React.Component<any> {
                 <Grid centered  verticalAlign="middle" textAlign="center" className={s.height}>
                     <Grid.Column className={s.maxWidth}>
                         <Header as="h3" textAlign="center" color="blue">
-                            <Image src="https://react.semantic-ui.com/logo.png" /> Log-in to Learning Management System
+                            <Image src="https://www.agreenium.fr/sites/default/files/default_images/learn.png" /> Log-in to Learning Management System
                         </Header>
                         <Form size="large" error={failed} loading={isLogging}>
                             <Segment stacked>

@@ -58,6 +58,14 @@ router.use('/*', (req, res, next) => {
     res.redirect(`/login?redirect=${req.originalUrl}`);
 });
 
+router.get('/logout', (req, res, next) => {
+    req.session.destroy((err) => {
+        if (err) return next(err);
+
+        return res.redirect('/login');
+    })
+});
+
 // DB connection
 
 const CONNECTION_STRING = 'mongodb://admin:password1@ds157923.mlab.com:57923/lms';

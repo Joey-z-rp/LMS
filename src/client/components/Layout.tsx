@@ -47,6 +47,10 @@ export class Layout extends React.Component<any> {
                         <Icon name='users' />
                         Lecturers
                     </Menu.Item>
+                    <Menu.Item as="a" href="/logout">
+                        <Icon name='log out' />
+                        Sign Out
+                    </Menu.Item>
                 </Sidebar>
                 <MediaQuery minWidth={768}>
                     <Menu color="blue" inverted className={s.noMarginTop}>
@@ -61,6 +65,10 @@ export class Layout extends React.Component<any> {
                         <Menu.Item as={NavLink} to="/lecturers">
                             <Icon name='users' />
                             Lecturers
+                        </Menu.Item>
+                        <Menu.Item as="a" href="/logout" position="right">
+                            <Icon name='log out' />
+                            Sign Out
                         </Menu.Item>
                     </Menu>
                 </MediaQuery>
