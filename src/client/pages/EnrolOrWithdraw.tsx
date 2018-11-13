@@ -17,10 +17,12 @@ import {
 } from 'semantic-ui-react';
 import MediaQuery from 'react-responsive';
 import { Link } from 'react-router-dom';
-import Calendar from 'react-calendar';
+import "react-datepicker/dist/react-datepicker.css";
+import DatePicker from "react-datepicker";
 import Layout from '../components/Layout';
 import { getEnrolData, enrolStudent, getWithdrawData, withdrawStudent } from '../actions';
 import PersonLabel from '../components/PersonLabel';
+import * as moment from "moment";
 
 const mapStateToProps = (state) => ({
     courses: state.enrolOrWithdraw.courses,
@@ -110,6 +112,8 @@ export class EnrolOrWithdrawPage extends React.Component<any, any> {
             };
         });
 
+        if (coursesOptions.length < 1) coursesOptions.push({ text: 'No selectable course' });
+
         const studentsOptions = (students || []).map((student) => {
             return {
                 text: student.name,
@@ -117,6 +121,8 @@ export class EnrolOrWithdrawPage extends React.Component<any, any> {
                 image: { avatar: true, src: student.image },
             };
         });
+
+        if (studentsOptions.length < 1) studentsOptions.push({ text: 'No selectable student' });
 
         const course = courses.find(course => course.id === this.state.courseSelected) || {};
         const student = students.find(student => student.id === this.state.studentSelected) || {};
@@ -194,12 +200,14 @@ export class EnrolOrWithdrawPage extends React.Component<any, any> {
                                             <Statistic.Label>To</Statistic.Label>
                                             <Statistic.Label>{course.to}</Statistic.Label>
                                         </Statistic>
-                                        <MediaQuery minWidth={768}>
-                                            <Calendar
-                                                value={[new Date(course.from || null), new Date(course.to || null)]}
-                                                selectRange
-                                            />
-                                        </MediaQuery>
+                                        <div />
+                                        <DatePicker
+                                            readOnly
+                                            inline
+                                            selectsStart
+                                            startDate={moment(course.from)}
+                                            endDate={moment(course.to)}
+                                        />
                                     </Table.Cell>
                                 </Table.Row>
                                 <Table.Row>

@@ -21,6 +21,7 @@ export function processLecturer(rawLecturer) {
         id: rawLecturer._id.toString(),
         name: rawLecturer.name,
         email: rawLecturer.email,
+        phone: rawLecturer.phone,
         image: rawLecturer.image,
         coursesTeaching: rawLecturer.coursesTeaching,
         rating: rawLecturer.rating,

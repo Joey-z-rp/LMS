@@ -14,7 +14,7 @@ import "react-datepicker/dist/react-datepicker.css";
 import DatePicker from "react-datepicker";
 import * as moment from 'moment';
 import Layout from '../components/Layout';
-import {getLecturers, createCourse, getCourse, saveCourse } from '../actions';
+import {getLecturers, createCourse, getCourse, saveCourse, clearCourse } from '../actions';
 
 const mapStateToProps = (state) => ({
     name: state.course.course.name,
@@ -24,7 +24,7 @@ const mapStateToProps = (state) => ({
     lecturer: state.course.course.lecturer,
     image: state.course.course.image,
     isLoading: state.course.isFetching,
-    lecturers: state.course.lecturerList,
+    lecturers: state.lecturers.lecturers,
     capacity: state.course.course.capacity,
 });
 
@@ -33,6 +33,7 @@ const mapDispatchToProps = (dispatch) => ({
     loadCourse: (id) => dispatch(getCourse(id)),
     create: course => dispatch(createCourse(course)),
     save: (course, id) => dispatch(saveCourse(course, id)),
+    clear: () => dispatch(clearCourse()),
 });
 
 export class NewOrEditCoursePage extends React.Component<any, any> {
@@ -87,10 +88,12 @@ export class NewOrEditCoursePage extends React.Component<any, any> {
         if (this.editMode()) {
             const id = this.props.match.params.id;
             this.props.save(course, id).then((redirect) => {
+                this.props.clear();
                 if (redirect) this.props.history.push(`/course/${id}/`);
             });
         } else {
             this.props.create(course).then((redirect) => {
+                this.props.clear();
                 if (redirect) this.props.history.push('/courses');
             });
         }
@@ -142,6 +145,7 @@ export class NewOrEditCoursePage extends React.Component<any, any> {
                             <Form.Field>
                                 <label>Start On</label>
                                 <DatePicker
+                                    dateFormat="YYYY-MM-DD"
                                     selected={moment(this.state.from)}
                                     onChange={(date) => this.setState({ from: date.format('YYYY-MM-DD') })}
                                 />
@@ -149,6 +153,7 @@ export class NewOrEditCoursePage extends React.Component<any, any> {
                             <Form.Field>
                                 <label>End on</label>
                                 <DatePicker
+                                    dateFormat="YYYY-MM-DD"
                                     selected={moment(this.state.to)}
                                     onChange={(date) => this.setState({ to: date.format('YYYY-MM-DD') })}
                                 />

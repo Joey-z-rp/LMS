@@ -13,6 +13,8 @@ import NewOrEditCoursePage from './pages/NewAndEditCourse';
 import NewOrEditStudentPage from './pages/NewAndEditStudent';
 import EnrolOrWithdrawPage from './pages/EnrolOrWithdraw';
 import LoginPage from './pages/Login';
+import LecturersPage from './pages/Lecturers';
+import PageNotFound from './pages/404Page';
 
 const App = () => (
     <Switch>
@@ -32,6 +34,8 @@ const App = () => (
         <Route component={NewOrEditCoursePage} exact path="/course/:id/edit" />
         <Route component={EnrolOrWithdrawPage} exact path="/course/:id/enrol" />
         <Route component={EnrolOrWithdrawPage} exact path="/course/:id/withdraw" />
+        <Route component={LecturersPage} exact path="/lecturers" />
+        <Route component={PageNotFound} />
     </Switch>
 );
 

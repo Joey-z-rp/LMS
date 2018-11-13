@@ -1,8 +1,8 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
-import { NavLink, withRouter } from 'react-router-dom';
+import { Link, NavLink, withRouter } from 'react-router-dom';
 import MediaQuery from 'react-responsive';
-import { Button, Container, Icon, Menu, Sidebar, Segment } from 'semantic-ui-react';
+import {Button, Container, Icon, Menu, Sidebar, Segment, Image} from 'semantic-ui-react';
 import { toggleSidebar } from '../actions';
 import * as s from './layout/Layout.css';
 import Footer from './Footer';
@@ -53,23 +53,33 @@ export class Layout extends React.Component<any> {
                     </Menu.Item>
                 </Sidebar>
                 <MediaQuery minWidth={768}>
-                    <Menu color="blue" inverted className={s.noMarginTop}>
-                        <Menu.Item as={NavLink} to="/courses">
-                            <Icon name='book' />
-                            Courses
+                    <Menu color="blue" inverted className={s.noMarginTop} size="huge">
+                        <Menu.Item as={Link} to="/">
+                            <Image
+                                src="http://www.pvhc.net/img106/toefgidjglxqxyppbilx.png"
+                                size="mini"
+                                spaced="right"
+                            />
+                            LMS
                         </Menu.Item>
-                        <Menu.Item as={NavLink} to="/students">
-                            <Icon name='student' />
-                            Students
-                        </Menu.Item>
-                        <Menu.Item as={NavLink} to="/lecturers">
-                            <Icon name='users' />
-                            Lecturers
-                        </Menu.Item>
-                        <Menu.Item as="a" href="/logout" position="right">
-                            <Icon name='log out' />
-                            Sign Out
-                        </Menu.Item>
+                        <Menu.Menu  position="right">
+                            <Menu.Item as={NavLink} to="/courses">
+                                <Icon name='book' />
+                                Courses
+                            </Menu.Item>
+                            <Menu.Item as={NavLink} to="/students">
+                                <Icon name='student' />
+                                Students
+                            </Menu.Item>
+                            <Menu.Item as={NavLink} to="/lecturers">
+                                <Icon name='users' />
+                                Lecturers
+                            </Menu.Item>
+                            <Menu.Item as="a" href="/logout">
+                                <Icon name='log out' />
+                                Sign Out
+                            </Menu.Item>
+                        </Menu.Menu>
                     </Menu>
                 </MediaQuery>
                 <Sidebar.Pusher

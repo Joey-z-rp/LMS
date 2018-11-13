@@ -5,6 +5,7 @@ import * as bodyParser from 'body-parser';
 import * as cookieParser from 'cookie-parser';
 import * as compression from 'compression';
 import * as session from 'express-session';
+import sessionFileStore from 'session-file-store';
 import mongoose from 'mongoose';
 import { renderTemp } from './htmlTemplate';
 import { getCourses, getCourse, createCourse, saveCourse, deleteCourse } from './api/courses';
@@ -15,6 +16,11 @@ import { login } from './api/login';
 
 const app = express();
 const PORT = 3000;
+
+const FileStore = sessionFileStore(session);
+const store = process.env.NODE_ENV !== 'production'
+    ? new FileStore({ path: '../sessions/' })
+    : undefined;
 
 const router = expressPromiseRouter({
     caseSensitive: true,
@@ -33,12 +39,13 @@ router.use(cookieParser());
 router.use(bodyParser.urlencoded({ limit: '1mb', extended: true }));
 router.use(bodyParser.json({ limit: '1mb' }));
 router.use(session({
+    store,
     name: 'lms',
     secret: 'olms',
     resave: false,
     saveUninitialized: true,
     cookie: {
-        maxAge: 3600000,
+        maxAge: 72000000,
     },
 }));
 
@@ -71,7 +78,11 @@ router.use('/api/*', (req, res, next) => {
     mongoose.connect(CONNECTION_STRING, { useNewUrlParser: true });
     const db = mongoose.connection;
     req.app.locals.db = db;
-    db.on('error', console.error.bind(console, 'MongoDB connection error:'));
+
+    if (db.listeners('error').length < 1) {
+        db.on('error', console.error.bind(console, 'MongoDB connection error:'));
+    }
+
     next();
 });
 

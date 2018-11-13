@@ -3,6 +3,7 @@ import fetch from './lib/fetch';
 // action types
 ​
 export const TOGGLE_SIDEBAR = 'TOGGLE_SIDEBAR';
+export const CLEAR_COURSE = 'CLEAR_COURSE';
 export const FETCH_COURSES = 'FETCH_COURSES';
 export const FETCHED_COURSES = 'FETCHED_COURSES';
 export const FETCH_COURSE = 'FETCH_COURSE';
@@ -27,6 +28,10 @@ export const LOGIN_FAILED = 'LOGIN_FAILED';
 ​
 export function toggleSidebar() {
     return { type: TOGGLE_SIDEBAR };
+}
+
+export function clearCourse() {
+    return { type: CLEAR_COURSE };
 }
 
 export function fetchCourses() {

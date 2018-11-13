@@ -35,6 +35,10 @@ export const createCourse = async (req, res) => {
 
     const result = await course.save();
 
+    const lecturer = await Lecturer.findById(result.lecturer);
+    lecturer.coursesTeaching.push(result._id.toString());
+    await lecturer.save();
+
     res.json(result);
 };
 

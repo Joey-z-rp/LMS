@@ -7,6 +7,7 @@ import students from './students';
 import enrolOrWithdraw from './enrolOrWithdraw';
 import message from './message';
 import login from './login';
+import lecturers from './lecturers';
 
 export default combineReducers({
     course,
@@ -16,4 +17,5 @@ export default combineReducers({
     enrolOrWithdraw,
     message,
     login,
+    lecturers,
 });

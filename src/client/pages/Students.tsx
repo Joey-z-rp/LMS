@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import { Button, Divider, Header, List, Icon, Input, Segment, Comment } from 'semantic-ui-react';
 import { Link } from 'react-router-dom';
 import Layout from '../components/Layout'
+import MediaQuery from 'react-responsive';
 import { getStudents, searchStudents } from '../actions';
 
 const mapStateToProps = (state) => ({
@@ -45,14 +46,25 @@ export class StudentsPage extends React.Component<any> {
                         }
                     }}
                 />
-                <Button
-                    primary
-                    floated="right"
-                    as={Link}
-                    to="/student/new"
-                >
-                    Register New Student
-                </Button>
+                <MediaQuery maxWidth={700}>
+                    {(matches) => {
+                        const floated = matches ? undefined : 'right';
+
+                        return (
+                            <React.Fragment>
+                                {matches ? <p />: null}
+                                <Button
+                                    primary
+                                    floated={floated}
+                                    as={Link}
+                                    to="/student/new"
+                                >
+                                    Register New Student
+                                </Button>
+                            </React.Fragment>
+                        );
+                    }}
+                </MediaQuery>
                 <Segment loading={isFetching} placeholder={!!noSearchResult}>
                     {
                         noSearchResult

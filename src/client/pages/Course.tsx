@@ -15,10 +15,12 @@ import {
 } from 'semantic-ui-react';
 import MediaQuery from 'react-responsive';
 import { Link } from 'react-router-dom';
-import Calendar from 'react-calendar';
+import "react-datepicker/dist/react-datepicker.css";
+import DatePicker from "react-datepicker";
 import Layout from '../components/Layout';
-import { getCourse, deleteCourse } from '../actions';
+import { getCourse, deleteCourse, clearCourse } from '../actions';
 import PersonLabel from '../components/PersonLabel';
+import * as moment from 'moment';
 
 const mapStateToProps = (state) => ({
     course: state.course.course,
@@ -28,6 +30,7 @@ const mapStateToProps = (state) => ({
 const mapDispatchToProps = (dispatch) => ({
     loadCourse: (id) => dispatch(getCourse(id)),
     delete: (id) => dispatch(deleteCourse(id)),
+    clear: () => dispatch(clearCourse()),
 });
 
 export class CoursePage extends React.Component<any, any> {
@@ -43,6 +46,10 @@ export class CoursePage extends React.Component<any, any> {
 
     componentDidMount() {
         this.props.loadCourse(this.props.match.params.id);
+    }
+
+    componentWillUnmount() {
+        this.props.clear();
     }
 
     delete() {
@@ -105,12 +112,14 @@ export class CoursePage extends React.Component<any, any> {
                                             <Statistic.Label>To</Statistic.Label>
                                             <Statistic.Label>{course.to}</Statistic.Label>
                                         </Statistic>
-                                        <MediaQuery minWidth={768}>
-                                            <Calendar
-                                                value={[new Date(course.from || null), new Date(course.to || null)]}
-                                                selectRange
-                                            />
-                                        </MediaQuery>
+                                        <div />
+                                        <DatePicker
+                                            readOnly
+                                            inline
+                                            selectsStart
+                                            startDate={moment(course.from)}
+                                            endDate={moment(course.to)}
+                                        />
                                     </Table.Cell>
                                 </Table.Row>
                                 <Table.Row>
@@ -123,7 +132,7 @@ export class CoursePage extends React.Component<any, any> {
                                     </Table.Cell>
                                     <Table.Cell>
                                         <PersonLabel
-                                            src="/"
+                                            src="/lecturers"
                                             name={course.lecturer && course.lecturer.name}
                                             image={course.lecturer&& course.lecturer.image}
                                             size="huge"

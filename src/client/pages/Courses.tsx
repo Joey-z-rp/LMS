@@ -70,7 +70,7 @@ export class CoursesPage extends React.Component<any> {
                                             <Card.Meta>
                                                 <span className='date'>{`${course.from} to ${course.to}`}</span>
                                             </Card.Meta>
-                                            <Card.Description>{course.description}</Card.Description>
+                                            <Card.Description>{`${course.description.substring(0, 100)}...`}</Card.Description>
                                         </Card.Content>
                                         <Card.Content extra>
                                             <Icon name='user' />
