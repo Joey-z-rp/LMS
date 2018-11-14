@@ -31,7 +31,12 @@ export const getCourse = async (req, res) => {
 };
 
 export const createCourse = async (req, res) => {
-    const course = new Course(createCourseFromData(req.body));
+    console.log({file: req.file})
+    console.log({body: req.body})
+    const course = new Course(createCourseFromData({
+        ...req.body,
+        image: req.file && req.file.url,
+    }));
 
     const result = await course.save();
 
@@ -43,7 +48,19 @@ export const createCourse = async (req, res) => {
 };
 
 export const saveCourse = async (req, res) => {
-    const course = createCourseFromData(req.body);
+    console.log({file: req.file})
+    console.log({body: req.body})
+
+    // TODO scroll to top onloaded
+
+    const image = req.file
+        ? req.file.url
+        : (await Course.findById(req.params.id)).image;
+
+    const course = createCourseFromData(createCourseFromData({
+        ...req.body,
+        image,
+    }));
     delete course.students;
 
     const result = await Course.findByIdAndUpdate(req.params.id, course);

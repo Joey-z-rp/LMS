@@ -29,9 +29,13 @@ export const getStudent = async (req, res) => {
 };
 
 export const registerStudent = async (req, res) => {
-    console.log(req.body);
+    console.log({file: req.file})
+    console.log({body: req.body})
 
-    const student = new Student(createStudentFromData(req.body));
+    const student = new Student(createStudentFromData({
+        ...req.body,
+        image: req.file && req.file.url,
+    }));
 
     const result = await student.save();
 
@@ -39,7 +43,17 @@ export const registerStudent = async (req, res) => {
 };
 
 export const saveStudent = async (req, res) => {
-    const student = createStudentFromData(req.body);
+    console.log({file: req.file})
+    console.log({body: req.body})
+
+    const image = req.file
+        ? req.file.url
+        : (await Student.findById(req.params.id)).image;
+
+    const student = createStudentFromData({
+        ...req.body,
+        image,
+    });
     delete student.registered;
     delete student.attendance;
     delete student.enrolledCourses;

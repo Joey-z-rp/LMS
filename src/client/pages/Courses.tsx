@@ -4,7 +4,7 @@ import { Button, Card, Divider, Header, Icon, Image, Segment, Placeholder }   fr
 import { Link } from 'react-router-dom';
 import * as moment from 'moment';
 import Layout from '../components/Layout'
-import { getCourses } from '../actions';
+import { getCourses, clearCourse } from '../actions';
 
 const mapStateToProps = (state) => ({
     courses: state.courses.list,
@@ -13,10 +13,12 @@ const mapStateToProps = (state) => ({
 
 const mapDispatchToProps = (dispatch) => ({
     loadCourses: () => dispatch(getCourses()),
+    clear: () => dispatch(clearCourse()),
 });
 
 export class CoursesPage extends React.Component<any> {
     componentDidMount() {
+        this.props.clear();
         this.props.loadCourses();
     }
 

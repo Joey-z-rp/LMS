@@ -7,11 +7,11 @@ import {
     Header,
     Icon,
     Segment,
-    Checkbox,
+    Checkbox, Image, Message,
 } from 'semantic-ui-react';
 import "react-datepicker/dist/react-datepicker.css";
 import Layout from '../components/Layout';
-import { getStudent, saveStudent, registerStudent } from '../actions';
+import { getStudent, saveStudent, registerStudent, clearStudent } from '../actions';
 
 const mapStateToProps = (state) => ({
     name: state.students.student.name,
@@ -26,24 +26,28 @@ const mapDispatchToProps = (dispatch) => ({
     loadStudent: id => dispatch(getStudent(id)),
     register: student => dispatch(registerStudent(student)),
     save: (student, id) => dispatch(saveStudent(student, id)),
+    clear: () => dispatch(clearStudent()),
 });
 
 export class NewOrEditStudentPage extends React.Component<any, any> {
-    private name;
-    private email;
-    private phone;
-    private image;
+    private file;
 
     constructor(props) {
         super(props);
 
         this.state = {
+            name: props.name || '',
+            email: props.email || '',
+            phone: props.phone || '',
             premium: props.premium || false,
+            image: props.image || '',
+            validationError: false,
         };
     }
 
 
     componentDidMount() {
+        this.props.clear();
         if (this.editMode()) {
             this.props.loadStudent(this.props.match.params.id);
         }
@@ -62,13 +66,33 @@ export class NewOrEditStudentPage extends React.Component<any, any> {
     }
 
     handleSubmit() {
-        const student = {
-            name: this.name.value,
-            email: this.email.value,
-            phone: this.phone.value,
-            image: this.image.value,
-            premium: this.state.premium,
-        };
+        // Validate
+        let validationError = false;
+        const data = {
+            name: this.state.name,
+            email: this.state.email,
+            phone: this.state.phone,
+        } as any;
+
+        Object.keys(data).forEach((key) => {
+            if (!data[key]) validationError = true;
+        });
+
+        if (!this.editMode() && !this.file.files[0]) validationError = true;
+
+        this.setState({ validationError });
+
+        if (validationError) return;
+
+        const student = new FormData();
+
+        data.premium = this.state.premium;
+        Object.keys(data).forEach(key => student.append(key, data[key]));
+
+        if (this.file.files && this.file.files[0]) {
+            student.append('file', this.file.files[0]);
+        }
+
         if (this.editMode()) {
             const id = this.props.match.params.id;
             this.props.save(student, id).then((redirect) => {
@@ -81,8 +105,12 @@ export class NewOrEditStudentPage extends React.Component<any, any> {
         }
     }
 
+    handleChange(event, field) {
+        this.setState({ [field]: event.target.value });
+    }
+
     render() {
-        const { isLoading, name, email, phone, image } = this.props;
+        const { isLoading, name, email, phone } = this.props;
 
         return (
             <Layout>
@@ -95,37 +123,30 @@ export class NewOrEditStudentPage extends React.Component<any, any> {
                     </Header.Content>
                 </Header>
                 <Segment size="tiny" loading={isLoading}>
-                    <Form size="huge">
-                        <Form.Field>
+                    <Form size="huge" error={!!this.state.validationError}>
+                        <Form.Field error={!this.state.name}>
                             <label>Student Name</label>
                             <input
-                                placeholder='Course Name'
-                                ref={e => this.name = e}
+                                type="text"
+                                placeholder='Name'
+                                onChange={event => this.handleChange(event, 'name')}
                                 defaultValue={this.editMode() ? name : ''}
                             />
                         </Form.Field>
-                        <Form.Field>
+                        <Form.Field error={!this.state.email}>
                             <label>Email</label>
                             <input
                                 placeholder='Email'
-                                ref={e => this.email = e}
+                                onChange={event => this.handleChange(event, 'email')}
                                 defaultValue={this.editMode() ? email : ''}
                             />
                         </Form.Field>
-                        <Form.Field>
+                        <Form.Field error={!this.state.phone}>
                             <label>Phone Number</label>
                             <input
                                 placeholder='Phone Number'
-                                ref={e => this.phone = e}
+                                onChange={event => this.handleChange(event, 'phone')}
                                 defaultValue={this.editMode() ? phone : ''}
-                            />
-                        </Form.Field>
-                        <Form.Field>
-                            <label>Image URL</label>
-                            <input
-                                placeholder='Image URL'
-                                defaultValue={image}
-                                ref={e => this.image = e}
                             />
                         </Form.Field>
                         <Divider hidden />
@@ -138,7 +159,35 @@ export class NewOrEditStudentPage extends React.Component<any, any> {
                                 label="Premium Plan"
                             />
                         </Form.Field>
+                        <Form.Group widths="equal">
+                            <Form.Field error={!this.editMode() && (!this.file || !this.file.files[0])}>
+                                <label>Image</label>
+                                <input
+                                    type="file"
+                                    ref={e => this.file = e}
+                                    onChange={() => {
+                                        if (this.file.files && this.file.files[0]) {
+                                            const reader = new FileReader();
+
+                                            reader.onload = (event) => {
+                                                // @ts-ignore
+                                                this.setState({ image: event.target.result });
+                                            };
+
+                                            reader.readAsDataURL(this.file.files[0]);
+                                        }
+                                    }}
+                                />
+                            </Form.Field>
+                            <Form.Field>
+                                <Image src={this.state.image} size="medium" />
+                            </Form.Field>
+                        </Form.Group>
                         <Divider hidden />
+                        <Message
+                            error
+                            content="Please complete all fields."
+                        />
                         <Button
                             onClick={() => this.handleSubmit()}
                             size="large"

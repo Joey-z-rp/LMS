@@ -1,4 +1,4 @@
-import { FETCH_STUDENTS, FETCHED_STUDENTS, SEARCH_STUDENTS, FETCHED_STUDENT, REGISTER_OR_SAVE_STUDENT } from "../actions";
+import { FETCH_STUDENTS, FETCHED_STUDENTS, SEARCH_STUDENTS, FETCHED_STUDENT, REGISTER_OR_SAVE_STUDENT, CLEAR_STUDENT } from "../actions";
 
 const initialState = {
     list: [],
@@ -23,6 +23,9 @@ export default function reducer(state = initialState, action) {
 
         case REGISTER_OR_SAVE_STUDENT:
             return { ...state, isFetching: true };
+
+        case CLEAR_STUDENT:
+            return { ...state, student: {} };
 
         default:
             return state;

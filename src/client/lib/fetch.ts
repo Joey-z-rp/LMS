@@ -3,7 +3,7 @@ import crossFetch from 'cross-fetch';
 export default function fetch(url: string, options?: any) {
     return crossFetch(url, {
         credentials: 'same-origin',
-        headers:     {
+        headers: {
             'Content-Type': 'application/json',
             Accept: 'application/json',
         },

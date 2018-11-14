@@ -4,7 +4,7 @@ import { Button, Divider, Header, List, Icon, Input, Segment, Comment } from 'se
 import { Link } from 'react-router-dom';
 import Layout from '../components/Layout'
 import MediaQuery from 'react-responsive';
-import { getStudents, searchStudents } from '../actions';
+import { getStudents, searchStudents, clearStudent } from '../actions';
 
 const mapStateToProps = (state) => ({
     students: state.students.list,
@@ -15,12 +15,14 @@ const mapStateToProps = (state) => ({
 const mapDispatchToProps = (dispatch) => ({
     loadStudents: () => dispatch(getStudents()),
     search: search => dispatch(searchStudents(search)),
+    clear: () => dispatch(clearStudent()),
 });
 
 export class StudentsPage extends React.Component<any> {
     private search;
 
     componentDidMount() {
+        this.props.clear();
         this.props.loadStudents();
     }
 

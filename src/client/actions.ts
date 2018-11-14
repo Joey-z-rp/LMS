@@ -13,6 +13,7 @@ export const FETCHED_LECTURERS = 'FETCHED_LECTURERS';
 export const CREATE_OR_SAVE_COURSE = 'CREATE_COURSE';
 export const FETCH_STUDENTS = 'FETCH_STUDENTS';
 export const FETCHED_STUDENTS = 'FETCHED_STUDENTS';
+export const CLEAR_STUDENT = 'CLEAR_STUDENT';
 export const SEARCH_STUDENTS = 'SEARCH_STUDENTS';
 ​export const FETCHED_STUDENT = 'FETCHED_STUDENT';
 export const REGISTER_OR_SAVE_STUDENT = 'REGISTER_OR_SAVE_STUDENT';
@@ -68,6 +69,10 @@ export function fetchStudents() {
 
 export function fetchedStudents(students) {
     return { type: FETCHED_STUDENTS, students };
+}
+
+export function clearStudent() {
+    return { type: CLEAR_STUDENT };
 }
 
 export function searchStudentsAction(search) {
@@ -157,7 +162,8 @@ export function createCourse(course) {
 
         return fetch('/api/course/create', {
             method: 'POST',
-            body: JSON.stringify(course),
+            body: course,
+            headers: {},
         })
             .then(res => {
                 dispatch(setMessage({
@@ -182,7 +188,8 @@ export function saveCourse(course, id) {
 
         return fetch(`/api/course/${id}/save`, {
             method: 'POST',
-            body: JSON.stringify(course),
+            body: course,
+            headers: {},
         })
             .then(res => {
                 dispatch(setMessage({
@@ -248,7 +255,8 @@ export function saveStudent(student, id) {
 
         return fetch(`/api/student/${id}/save`, {
             method: 'POST',
-            body: JSON.stringify(student),
+            body: student,
+            headers: {},
         })
             .then(res => {
                 dispatch(setMessage({
@@ -273,7 +281,8 @@ export function registerStudent(student) {
 
         return fetch('/api/student/register', {
             method: 'POST',
-            body: JSON.stringify(student),
+            body: student,
+            headers: {},
         })
             .then(res => {
                 dispatch(setMessage({

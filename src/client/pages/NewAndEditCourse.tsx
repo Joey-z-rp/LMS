@@ -6,6 +6,8 @@ import {
     Divider,
     Header,
     Icon,
+    Image,
+    Message,
     Segment,
     Select,
     TextArea,
@@ -37,18 +39,20 @@ const mapDispatchToProps = (dispatch) => ({
 });
 
 export class NewOrEditCoursePage extends React.Component<any, any> {
-    private name;
-    private image;
-    private capacity;
+    private file;
 
     constructor(props) {
         super(props);
 
         this.state = {
+            name: props.name || '',
             description: props.description || '',
             from: props.from || moment().format('YYYY-MM-DD'),
             to: props.to || moment().format('YYYY-MM-DD'),
-            lecturer: props.lecturer || '',
+            capacity: props.capacity || '',
+            lecturer: props.lecturer,
+            image: props.image || '',
+            validationError: false,
         };
     }
 
@@ -75,15 +79,34 @@ export class NewOrEditCoursePage extends React.Component<any, any> {
     }
 
     handleSubmit() {
-        const course = {
-            name: this.name.value,
+        // Validate
+        let validationError;
+        const data = {
+            name: this.state.name,
             description: this.state.description,
             from: this.state.from,
             to: this.state.to,
-            lecturer: this.state.lecturer,
-            capacity: this.capacity.value,
-            image: this.image.value,
+            lecturer: this.state.lecturer && this.state.lecturer.id,
+            capacity: this.state.capacity,
         };
+
+        Object.keys(data).forEach((key) => {
+            if (!data[key]) validationError = true;
+        });
+
+        if (!this.editMode() && !this.file.files[0]) validationError = true;
+
+        this.setState({ validationError });
+
+        if (validationError) return;
+
+        const course = new FormData();
+
+        Object.keys(data).forEach(key => course.append(key, data[key]));
+
+        if (this.file.files && this.file.files[0]) {
+            course.append('file', this.file.files[0]);
+        }
 
         if (this.editMode()) {
             const id = this.props.match.params.id;
@@ -100,17 +123,13 @@ export class NewOrEditCoursePage extends React.Component<any, any> {
     }
 
     render() {
-        const { lecturers, isLoading, name, image, capacity } = this.props;
+        const { lecturers, isLoading, name, capacity } = this.props;
 
         const options = lecturers.map((lecturer) => ({
             text: lecturer.name,
             value: lecturer.id,
             image: { avatar: true, src: lecturer.image },
         }));
-
-        let selected;
-        if (this.state.lecturer) selected = this.state.lecturer.id;
-        console.log(this.state.lecturer)
 
         return (
             <Layout>
@@ -123,16 +142,16 @@ export class NewOrEditCoursePage extends React.Component<any, any> {
                     </Header.Content>
                 </Header>
                 <Segment size="tiny" loading={isLoading}>
-                    <Form size="huge">
-                        <Form.Field>
+                    <Form size="huge" error={!!this.state.validationError}>
+                        <Form.Field error={!this.state.name}>
                             <label>Course Name</label>
                             <input
                                 placeholder='Course Name'
-                                ref={e => this.name = e}
+                                onChange={event => this.setState({ name: event.target.value })}
                                 defaultValue={this.editMode() ? name : ''}
                             />
                         </Form.Field>
-                        <Form.Field>
+                        <Form.Field error={!this.state.description}>
                             <label>Description</label>
                             <TextArea
                                 autoHeight
@@ -142,7 +161,7 @@ export class NewOrEditCoursePage extends React.Component<any, any> {
                             />
                         </Form.Field>
                         <Form.Group>
-                            <Form.Field>
+                            <Form.Field error={!this.state.from}>
                                 <label>Start On</label>
                                 <DatePicker
                                     dateFormat="YYYY-MM-DD"
@@ -150,7 +169,7 @@ export class NewOrEditCoursePage extends React.Component<any, any> {
                                     onChange={(date) => this.setState({ from: date.format('YYYY-MM-DD') })}
                                 />
                             </Form.Field>
-                            <Form.Field>
+                            <Form.Field error={!this.state.to}>
                                 <label>End on</label>
                                 <DatePicker
                                     dateFormat="YYYY-MM-DD"
@@ -160,31 +179,53 @@ export class NewOrEditCoursePage extends React.Component<any, any> {
                             </Form.Field>
                         </Form.Group>
                         <Divider hidden />
-                        <Form.Field>
+                        <Form.Field error={!this.state.capacity}>
                             <label>Capacity</label>
                             <input
                                 placeholder='Course Capacity'
                                 type="number"
-                                ref={e => this.capacity = e}
+                                onChange={event => this.setState({ capacity: event.target.value })}
                                 defaultValue={this.editMode() ? capacity : 0}
                             />
                         </Form.Field>
-                        <Form.Field>
+                        <Form.Field error={!this.state.lecturer}>
                             <label>Lecturer</label>
                             <Select
-                                value={selected}
+                                value={this.state.lecturer && this.state.lecturer.id || ''}
                                 options={options}
-                                onChange={(event, data) => this.setState({ lecturer: data.value })}
+                                onChange={(event, data) => this.setState({
+                                    lecturer: { id: data.value },
+                                })}
                             />
                         </Form.Field>
-                        <Form.Field>
-                            <label>Image URL</label>
-                            <input
-                                placeholder='Image URL'
-                                defaultValue={image}
-                                ref={e => this.image = e}
-                            />
-                        </Form.Field>
+                        <Form.Group widths="equal">
+                            <Form.Field error={!this.editMode() && this.file && !this.file.files[0]}>
+                                <label>Image</label>
+                                <input
+                                    type="file"
+                                    ref={e => this.file = e}
+                                    onChange={() => {
+                                        if (this.file.files && this.file.files[0]) {
+                                            const reader = new FileReader();
+
+                                            reader.onload = (event) => {
+                                                // @ts-ignore
+                                                this.setState({ image: event.target.result });
+                                            };
+
+                                            reader.readAsDataURL(this.file.files[0]);
+                                        }
+                                    }}
+                                />
+                            </Form.Field>
+                            <Form.Field>
+                                <Image src={this.state.image} size="medium" />
+                            </Form.Field>
+                        </Form.Group>
+                        <Message
+                            error
+                            content="Please complete all fields."
+                        />
                         <Button
                             onClick={() => this.handleSubmit()}
                             size="large"
