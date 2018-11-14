@@ -77,7 +77,7 @@ export function mapStudent(rawStudent) {
         phone: rawStudent.phone,
         registered: moment(rawStudent.registered).format('YYYY-MM-DD'),
         image: rawStudent.image,
-        enrolledCourse: rawStudent.enrolledCourse,
+        enrolledCourse: rawStudent.enrolledCourses,
         attendance: rawStudent.attendance,
         premium: rawStudent.premium,
     };
