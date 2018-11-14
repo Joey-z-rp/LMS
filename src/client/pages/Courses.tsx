@@ -53,7 +53,7 @@ export class CoursesPage extends React.Component<any> {
                         {
                             courses.map((course, index) => {
                                 let labelOption = { corner: 'right' } as any;
-                                if (course.students > 10) {
+                                if (course.capacity - course.students < 4) {
                                     labelOption = { ...labelOption, ...{ icon: 'hotjar', color: 'red' } };
                                 } else if (Math.abs(moment().diff(moment(course.from), 'days')) < 5) {
                                     labelOption = { ...labelOption, ...{ icon: 'bullhorn', color: 'green' } };
