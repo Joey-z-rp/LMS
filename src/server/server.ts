@@ -2,9 +2,6 @@ import * as path from 'path';
 import * as express from 'express';
 import expressPromiseRouter from 'express-promise-router';
 import * as bodyParser from 'body-parser';
-import multer from 'multer';
-import cloudinary from 'cloudinary';
-import cloudinaryStorage from 'multer-storage-cloudinary';
 import * as cookieParser from 'cookie-parser';
 import * as compression from 'compression';
 import * as session from 'express-session';
@@ -16,6 +13,7 @@ import { getLecturers } from './api/lecturers';
 import { getStudents, searchStudents, getStudent, saveStudent, registerStudent, deleteStudent } from './api/students';
 import { getEnrolData, enrolStudent, getWithdrawData, withdrawStudent } from './api/enrolAndWithdraw';
 import { login } from './api/login';
+import { makeImageUploadMiddleware } from './utils/imageUploadMiddleware';
 
 const app = express();
 const PORT = 3000;
@@ -24,20 +22,6 @@ const FileStore = sessionFileStore(session);
 const store = process.env.NODE_ENV !== 'production'
     ? new FileStore({ path: '../sessions/' })
     : undefined;
-
-// File upload
-cloudinary.config({
-    cloud_name: 'dhp4arhke',
-    api_key: '517648199243368',
-    api_secret: 'tdF4SrJLf6fK1PaqHhQcGCqZO1k',
-});
-const storage = cloudinaryStorage({
-    cloudinary,
-    folder: 'lms',
-    allowedFormats: ['jpg', 'jpeg', 'png'],
-    transformation: [{ width: 300, height: 300, crop: 'scale' }],
-});
-const parser = multer({ storage });
 
 // Router
 const router = expressPromiseRouter({
@@ -110,14 +94,14 @@ router.post('/api/login', login);
 router.get('/api/courses', getCourses);
 router.get('/api/students', getStudents);
 router.get('/api/students/search/:search', searchStudents);
-router.post('/api/student/register', parser.single('file'), registerStudent);
+router.post('/api/student/register', makeImageUploadMiddleware('student', 'file'), registerStudent);
 router.delete('/api/student/delete/:id', deleteStudent);
 router.get('/api/student/:id', getStudent);
-router.post('/api/student/:id/save', parser.single('file'), saveStudent);
-router.post('/api/course/create', parser.single('file'), createCourse);
+router.post('/api/student/:id/save', makeImageUploadMiddleware('student', 'file', 'id'), saveStudent);
+router.post('/api/course/create', makeImageUploadMiddleware('course', 'file'), createCourse);
 router.delete('/api/course/delete/:id', deleteCourse);
 router.get('/api/course/:id', getCourse);
-router.post('/api/course/:id/save', parser.single('file'), saveCourse);
+router.post('/api/course/:id/save', makeImageUploadMiddleware('course', 'file', 'id'), saveCourse);
 router.get('/api/lecturers', getLecturers);
 router.get('/api/enrol', getEnrolData);
 router.get('/api/withdraw', getWithdrawData);

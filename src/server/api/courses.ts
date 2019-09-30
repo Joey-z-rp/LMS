@@ -35,7 +35,7 @@ export const createCourse = async (req, res) => {
     console.log({body: req.body})
     const course = new Course(createCourseFromData({
         ...req.body,
-        image: req.file && req.file.url,
+        image: req.file && req.file.location,
     }));
 
     const result = await course.save();
@@ -54,7 +54,7 @@ export const saveCourse = async (req, res) => {
     // TODO scroll to top onloaded
 
     const image = req.file
-        ? req.file.url
+        ? req.file.location
         : (await Course.findById(req.params.id)).image;
 
     const course = createCourseFromData(createCourseFromData({

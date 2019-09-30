@@ -34,7 +34,7 @@ export const registerStudent = async (req, res) => {
 
     const student = new Student(createStudentFromData({
         ...req.body,
-        image: req.file && req.file.url,
+        image: req.file && req.file.location,
     }));
 
     const result = await student.save();
@@ -47,7 +47,7 @@ export const saveStudent = async (req, res) => {
     console.log({body: req.body})
 
     const image = req.file
-        ? req.file.url
+        ? req.file.location
         : (await Student.findById(req.params.id)).image;
 
     const student = createStudentFromData({
